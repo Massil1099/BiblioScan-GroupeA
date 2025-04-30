@@ -1,5 +1,6 @@
 # BiblioScan
 Création de la branche develop 
+De la branche develop, on crée 3 branches : UI_feature, Images_feature et Backend_feature
 ## Getting started
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
