@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle) // Lifecycle support for CameraX
     implementation(libs.androidx.camera.view) // CameraX Preview View
     implementation(libs.androidx.camera.camera2)
+    implementation(libs.text.recognition)
 
 
     // Testing libraries

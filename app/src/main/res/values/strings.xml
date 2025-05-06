@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">BiblioScan</string>
-    <string name="capturer">Capturer</string>
     <string name="statut_camera">Statut caméra</string>
     <string name="capture">Capture</string>
+    <string name="image_capture">Image capturé</string>
+    <string name="ocr_result">OCR result here...</string>
 </resources>
