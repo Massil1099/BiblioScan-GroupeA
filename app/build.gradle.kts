@@ -55,7 +55,13 @@ dependencies {
     implementation(libs.androidx.camera.view) // CameraX Preview View
     implementation(libs.androidx.camera.camera2)
     implementation(libs.text.recognition)
-
+    implementation (libs.androidx.navigation.fragment.ktx)
+    implementation (libs.androidx.navigation.ui.ktx)
+    // CameraX
+    implementation(libs.androidx.camera.core.v130alpha04)
+    implementation(libs.androidx.camera.camera2.v130alpha04)
+    implementation(libs.androidx.camera.lifecycle.v130alpha04)
+    implementation(libs.androidx.camera.view.v130alpha04)
 
     // Testing libraries
     testImplementation(libs.junit)
