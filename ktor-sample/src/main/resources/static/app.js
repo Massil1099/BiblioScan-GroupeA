@@ -1,16 +1,3 @@
-async function fetchLivres() {
-    const response = await fetch("/livres");
-    const livres = await response.json();
-
-    const list = document.getElementById("livres-list");
-    list.innerHTML = "";
-    livres.forEach(livre => {
-        const item = document.createElement("li");
-        item.textContent = `${livre.titre} — ${livre.auteur}`;
-        list.appendChild(item);
-    });
-}
-
 async function scanLivres() {
     const input = document.getElementById("scan-input").value;
     const titres = input.split(",").map(t => t.trim());
@@ -30,5 +17,3 @@ async function scanLivres() {
         list.appendChild(item);
     });
 }
-
-window.onload = fetchLivres;

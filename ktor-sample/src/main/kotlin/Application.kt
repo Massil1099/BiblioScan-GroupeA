@@ -25,6 +25,8 @@ fun Application.module() {
             files(".") // Cela servira tous les fichiers du dossier static
             default("index.html")
         }
+
+
     }
 
     configureRouting()

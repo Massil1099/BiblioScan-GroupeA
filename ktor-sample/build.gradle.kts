@@ -30,8 +30,16 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests:2.3.4")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.0.21")
 
+
+
+    implementation("io.ktor:ktor-client-core:2.3.9")
+    implementation("io.ktor:ktor-client-cio:2.3.9")
+
     implementation("io.ktor:ktor-server-content-negotiation:2.3.4")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.9")
+
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
+
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
     implementation("io.ktor:ktor-server-default-headers:2.1.20")
 }
