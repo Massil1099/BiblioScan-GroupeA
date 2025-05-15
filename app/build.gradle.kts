@@ -49,31 +49,27 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
-    // CameraX dependencies
-    implementation(libs.androidx.camera.core) // Core CameraX library
-    implementation(libs.androidx.camera.lifecycle) // Lifecycle support for CameraX
-    implementation(libs.androidx.camera.view) // CameraX Preview View
-    implementation(libs.androidx.camera.camera2)
+    // CameraX dependencies (1.3.0)
+    implementation("androidx.camera:camera-core:1.3.0")
+    implementation("androidx.camera:camera-camera2:1.3.0")
+    implementation("androidx.camera:camera-lifecycle:1.3.0")
+    implementation("androidx.camera:camera-view:1.3.0")
+    implementation("androidx.camera:camera-extensions:1.3.0")
+
+    // Navigation Component
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.3")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.3")
+
+    // Text Recognition (OCR)
     implementation(libs.text.recognition)
-    implementation (libs.androidx.navigation.fragment.ktx)
-    implementation (libs.androidx.navigation.ui.ktx)
-    // CameraX
-    implementation(libs.androidx.camera.core.v130alpha04)
-    implementation(libs.androidx.camera.camera2.v130alpha04)
-    implementation(libs.androidx.camera.lifecycle.v130alpha04)
-    implementation(libs.androidx.camera.view.v130alpha04)
 
     // Testing libraries
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-
-
-
-
-
+    // Networking (Ktor)
     implementation("io.ktor:ktor-client-core:2.3.4")
     implementation("io.ktor:ktor-client-cio:2.3.4")
-
 }
+

@@ -1,44 +1,160 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- res/navigation/nav_graph.xml -->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph"
-    app:startDestination="@id/fragmentAccueil">
+    app:startDestination="@id/fragmentConnexion">
 
+    <!-- Fragment Connexion -->
+    <fragment
+        android:id="@+id/fragmentConnexion"
+        android:name="com.example.biblioscan.fragments.FragmentConnexion"
+        android:label="Connexion"
+        tools:layout="@layout/fragment_connexion">
+
+        <action
+            android:id="@+id/action_connexion_to_accueil"
+            app:destination="@id/fragmentAccueil"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!-- Fragment Accueil -->
     <fragment
         android:id="@+id/fragmentAccueil"
         android:name="com.example.biblioscan.fragments.FragmentAccueil"
         android:label="Accueil"
         tools:layout="@layout/fragment_accueil">
+
         <action
-            android:id="@+id/action_fragmentAccueil_to_fragmentCamera"
-            app:destination="@id/fragmentCamera" />
+            android:id="@+id/action_accueil_to_camera"
+            app:destination="@id/fragmentCamera"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_accueil_to_favoris"
+            app:destination="@id/fragmentFavoris"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_accueil_to_historique"
+            app:destination="@id/fragmentHistorique"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_accueil_to_connexion"
+            app:destination="@id/fragmentConnexion"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
+    <!-- Fragment Caméra -->
     <fragment
         android:id="@+id/fragmentCamera"
         android:name="com.example.biblioscan.fragments.FragmentCamera"
-        android:label="Camera"
+        android:label="Caméra"
         tools:layout="@layout/fragment_camera">
         <action
-            android:id="@+id/action_fragmentCamera_to_fragmentPretraitement"
-            app:destination="@id/fragmentPretraitement" />
-    </fragment>
+            android:id="@+id/action_camera_to_liste"
+            app:destination="@id/fragmentListe"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
 
-    <fragment
-        android:id="@+id/fragmentPretraitement"
-        android:name="com.example.biblioscan.fragments.FragmentPretraitement"
-        android:label="Pretraitement"
-        tools:layout="@layout/fragment_pretraitement">
         <action
-            android:id="@+id/action_fragmentPretraitement_to_fragmentResultat"
-            app:destination="@id/fragmentResultat" />
+            android:id="@+id/action_camera_to_accueil"
+            app:destination="@id/fragmentAccueil"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
+    <!-- Fragment Liste -->
+    <fragment
+        android:id="@+id/fragmentListe"
+        android:name="com.example.biblioscan.fragments.FragmentListe"
+        android:label="Liste"
+        tools:layout="@layout/fragment_liste">
+
+        <action
+            android:id="@+id/action_liste_to_accueil"
+            app:destination="@id/fragmentAccueil"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!-- Fragment Résultat -->
     <fragment
         android:id="@+id/fragmentResultat"
         android:name="com.example.biblioscan.fragments.FragmentResultat"
         android:label="Résultat"
-        tools:layout="@layout/fragment_resultat" />
+        tools:layout="@layout/fragment_resultat">
+
+        <action
+            android:id="@+id/action_resultat_to_camera"
+            app:destination="@id/fragmentCamera"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_resultat_to_accueil"
+            app:destination="@id/fragmentAccueil"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!-- Fragment Favoris -->
+    <fragment
+        android:id="@+id/fragmentFavoris"
+        android:name="com.example.biblioscan.fragments.FragmentFavoris"
+        android:label="Favoris"
+        tools:layout="@layout/fragment_favoris">
+
+        <action
+            android:id="@+id/action_favoris_to_accueil"
+            app:destination="@id/fragmentAccueil"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!-- Fragment Historique -->
+    <fragment
+        android:id="@+id/fragmentHistorique"
+        android:name="com.example.biblioscan.fragments.FragmentHistorique"
+        android:label="Historique"
+        tools:layout="@layout/fragment_historique">
+
+        <action
+            android:id="@+id/action_historique_to_accueil"
+            app:destination="@id/fragmentAccueil"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+
 
 </navigation>

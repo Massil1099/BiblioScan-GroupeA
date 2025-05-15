@@ -1,3 +1,4 @@
+// FragmentAccueil.kt
 package com.example.biblioscan.fragments
 
 import android.os.Bundle
@@ -19,15 +20,28 @@ class FragmentAccueil : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAccueilBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        binding.openCameraButton.setOnClickListener {
-            findNavController().navigate(R.id.action_fragmentAccueil_to_fragmentCamera)
+        // Bouton Historique
+        binding.historyButton.setOnClickListener {
+            findNavController().navigate(R.id.action_accueil_to_historique)
         }
+
+        // Bouton Favoris
+        binding.favoritesButton.setOnClickListener {
+            findNavController().navigate(R.id.action_accueil_to_favoris)
+        }
+
+        // Bouton Caméra
+        binding.cameraButton.setOnClickListener {
+            findNavController().navigate(R.id.action_accueil_to_camera)
+        }
+
+        // Bouton Déconnexion
+        binding.authButton.setOnClickListener {
+            findNavController().navigate(R.id.action_accueil_to_connexion)
+        }
+
+        return binding.root
     }
 
     override fun onDestroyView() {

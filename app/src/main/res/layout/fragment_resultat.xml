@@ -1,14 +1,75 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- res/layout/fragment_resultat.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:orientation="vertical"
+    android:background="@drawable/background_gradient"
+    android:padding="24dp"
+    android:gravity="center">
 
+    <!-- Image du livre avec effet de profondeur -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="250dp"
+        android:layout_height="150dp"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="8dp"
+        app:cardUseCompatPadding="true">
+
+        <ImageView
+            android:id="@+id/book_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:background="@android:color/white" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- Titre du livre -->
     <TextView
-        android:id="@+id/resultTextView"
+        android:id="@+id/book_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Résultats affichés ici..."
+        android:text="Titre du Livre"
+        android:textSize="22sp"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Auteur -->
+    <TextView
+        android:id="@+id/book_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Auteur"
         android:textSize="18sp"
-        android:layout_gravity="center" />
-</ScrollView>
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Description du livre -->
+    <TextView
+        android:id="@+id/book_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Description du livre..."
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="24dp"
+        android:gravity="center" />
+
+    <!-- Bouton Ajouter aux Favoris -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/favorites_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AJOUTER AUX FAVORIS"
+        android:textColor="@android:color/white"
+        app:icon="@drawable/ic_favorite"
+        app:iconTint="@android:color/white"
+        app:iconGravity="start"
+        app:iconPadding="8dp"
+        app:backgroundTint="@color/teal_700"
+        app:cornerRadius="20dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp" />
+</LinearLayout>

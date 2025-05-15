@@ -1,0 +1,47 @@
+<!-- res/layout/item_book.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/background_gradient"
+    android:padding="16dp"
+    android:layout_marginBottom="8dp"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:clickable="true">
+
+    <ImageView
+        android:id="@+id/book_image"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/result_placeholder"
+        android:contentDescription="@string/book_image"
+        android:scaleType="centerCrop"
+        android:src="@drawable/result_placeholder" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/book_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Titre du Livre"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:importantForAccessibility="yes" />
+
+        <TextView
+            android:id="@+id/book_author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Auteur"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:importantForAccessibility="yes" />
+    </LinearLayout>
+</LinearLayout>

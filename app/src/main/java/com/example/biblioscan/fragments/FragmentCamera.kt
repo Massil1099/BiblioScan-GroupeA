@@ -1,3 +1,4 @@
+// FragmentCamera.kt
 package com.example.biblioscan.fragments
 
 import android.Manifest
@@ -7,12 +8,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.Preview
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -28,9 +26,17 @@ class FragmentCamera : Fragment() {
 
     private var _binding: FragmentCameraBinding? = null
     private val binding get() = _binding!!
-
     private lateinit var imageCapture: ImageCapture
     private lateinit var cameraExecutor: ExecutorService
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                startCamera()
+            } else {
+                Log.e("CameraXApp", "Permission non accordée")
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,6 +50,7 @@ class FragmentCamera : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Vérification des permissions
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.CAMERA
@@ -51,15 +58,17 @@ class FragmentCamera : Fragment() {
         ) {
             startCamera()
         } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.CAMERA),
-                1
-            )
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
 
+        // Bouton de capture
         binding.captureButton.setOnClickListener {
             takePhoto()
+        }
+
+        // Bouton de retour
+        binding.backButton.setOnClickListener {
+            findNavController().navigate(R.id.action_camera_to_accueil)
         }
     }
 
@@ -69,14 +78,20 @@ class FragmentCamera : Fragment() {
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
 
+            // Configuration de la Preview
             val preview = Preview.Builder().build().also {
-                it.surfaceProvider = binding.previewView.surfaceProvider
+                it.setSurfaceProvider(binding.cameraPreview.surfaceProvider)
             }
 
-            imageCapture = ImageCapture.Builder().build()
+            // Configuration pour la capture d'image
+            imageCapture = ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .build()
 
+            // Sélection de la caméra arrière
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
+            // Démarrer la caméra
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
 
@@ -84,6 +99,7 @@ class FragmentCamera : Fragment() {
     }
 
     private fun takePhoto() {
+        // Création du fichier pour sauvegarder l'image
         val photoFile = File(
             requireContext().getExternalFilesDir(null),
             "IMG_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}.jpg"
@@ -91,18 +107,27 @@ class FragmentCamera : Fragment() {
 
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
-        imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(requireContext()),
+        // Capture de l'image
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(requireContext()),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val bundle = Bundle()
-                    bundle.putString("imagePath", photoFile.absolutePath)
-                    findNavController().navigate(R.id.action_fragmentCamera_to_fragmentPretraitement, bundle)
+                    val savedUri = photoFile.absolutePath
+                    Log.d("CameraXApp", "Image sauvegardée : $savedUri")
+
+                    // Naviguer vers le fragment de liste avec l'image
+                    val bundle = Bundle().apply {
+                        putString("capturedImagePath", savedUri)
+                    }
+                    findNavController().navigate(R.id.action_camera_to_liste, bundle)
                 }
 
                 override fun onError(exception: ImageCaptureException) {
-                    Log.e("CameraXApp", "Photo capture failed: ${exception.message}", exception)
+                    Log.e("CameraXApp", "Erreur lors de la capture : ${exception.message}", exception)
                 }
-            })
+            }
+        )
     }
 
     override fun onDestroyView() {
