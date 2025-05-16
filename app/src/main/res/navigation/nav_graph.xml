@@ -97,6 +97,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_liste_to_watchBooksDetection"
+            app:destination="@id/fragmentWatchBooksDetection"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <!-- Fragment Résultat -->
@@ -156,5 +163,32 @@
     </fragment>
 
 
+
+
+
+
+    <!-- Fragment Regarder image avec boundboxes sur les livres -->
+    <fragment
+        android:id="@+id/fragmentWatchBooksDetection"
+        android:name="com.example.biblioscan.fragments.FragmentWatchBooksDetection"
+        android:label="WatchBooksDetection"
+        tools:layout="@layout/fragment_watch_books_detection">
+
+        <action
+            android:id="@+id/action_watchBooksDetection_to_camera"
+            app:destination="@id/fragmentCamera"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_watchBooksDetection_to_resultat"
+            app:destination="@id/fragmentResultat"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 
 </navigation>

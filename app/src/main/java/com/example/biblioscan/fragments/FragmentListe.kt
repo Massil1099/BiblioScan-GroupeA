@@ -1,4 +1,3 @@
-// FragmentListe.kt
 package com.example.biblioscan.fragments
 
 import android.os.Bundle
@@ -48,12 +47,24 @@ class FragmentListe : Fragment() {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
+        // ** Nouveau : bouton pour aller vers la détection en temps réel **
+        binding.buttonGoToDetection.setOnClickListener {
+            findNavController().navigate(R.id.action_liste_to_watchBooksDetection)
+        }
+
         return binding.root
     }
 
     private fun loadDetectedBooks() {
-        // Simuler une liste vide pour le test
-        val detectedBooks = emptyList<Book>()
+        val texts = arguments?.getStringArrayList("detectedTexts") ?: emptyList<String>()
+
+        val detectedBooks = texts.mapIndexed { index, text ->
+            Book(
+                title = text.take(30), // raccourcir pour l'affichage
+                author = "Auteur inconnu", // tu peux essayer de détecter l’auteur plus tard
+                description = text // texte complet détecté
+            )
+        }
 
         // Afficher ou masquer le message d'état vide
         if (detectedBooks.isEmpty()) {

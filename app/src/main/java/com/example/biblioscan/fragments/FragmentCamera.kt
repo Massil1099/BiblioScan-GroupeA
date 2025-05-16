@@ -22,6 +22,12 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+
+import android.graphics.BitmapFactory
+import com.example.biblioscan.ImageProcessing.YoloBookDetector
+import com.example.biblioscan.ImageProcessing.extractTextFromBoundingBoxes
+
+
 class FragmentCamera : Fragment() {
 
     private var _binding: FragmentCameraBinding? = null
@@ -116,12 +122,33 @@ class FragmentCamera : Fragment() {
                     val savedUri = photoFile.absolutePath
                     Log.d("CameraXApp", "Image sauvegardée : $savedUri")
 
-                    // Naviguer vers le fragment de liste avec l'image
-                    val bundle = Bundle().apply {
-                        putString("capturedImagePath", savedUri)
+                    // Étape 1 : Charger le bitmap
+                    val bitmap = BitmapFactory.decodeFile(savedUri)
+
+                    // Étape 2 : Détecter les livres avec YOLO
+                    val detector = YoloBookDetector(requireContext())
+                    val results = detector.detect(bitmap)
+
+                    if (results.isEmpty()) {
+                        Log.d("CameraXApp", "Aucun livre détecté.")
+                        return
                     }
-                    findNavController().navigate(R.id.action_camera_to_liste, bundle)
+
+                    // Étape 3 : Appliquer OCR (extraction du texte sur les bounding boxes)
+                    extractTextFromBoundingBoxes(bitmap, results) { texts ->
+                        texts.forEachIndexed { index, text ->
+                            Log.d("OCR", "Livre ${index + 1} : $text")
+                        }
+
+                        // Exemple : tu pourrais maintenant naviguer vers un fragment avec les textes en paramètre
+                        val bundle = Bundle().apply {
+                            putString("capturedImagePath", savedUri)
+                            putStringArrayList("detectedTexts", ArrayList(texts))
+                        }
+                        findNavController().navigate(R.id.action_camera_to_liste, bundle)
+                    }
                 }
+
 
                 override fun onError(exception: ImageCaptureException) {
                     Log.e("CameraXApp", "Erreur lors de la capture : ${exception.message}", exception)

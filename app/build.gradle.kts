@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     kotlin("android") version "2.0.21"
+    id ("kotlin-parcelize")
+
 }
 
 android {
@@ -38,6 +40,12 @@ android {
 
     buildFeatures {
         viewBinding = true
+        dataBinding = true
+
+    }
+
+    aaptOptions {
+        noCompress("tflite")
     }
 }
 
@@ -71,5 +79,13 @@ dependencies {
     // Networking (Ktor)
     implementation("io.ktor:ktor-client-core:2.3.4")
     implementation("io.ktor:ktor-client-cio:2.3.4")
+
+    //Tensorflow Lite
+    implementation ("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation ("org.tensorflow:tensorflow-lite-support:0.4.4")
+
+
+    implementation ("com.google.mlkit:text-recognition:16.0.1")
+
 }
 
