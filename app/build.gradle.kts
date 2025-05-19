@@ -1,8 +1,8 @@
 plugins {
     id("com.android.application")
     kotlin("android") version "2.0.21"
-    id ("kotlin-parcelize")
-
+    kotlin("plugin.serialization") version "2.0.21" // ✅ Ajouté
+    id("kotlin-parcelize")
 }
 
 android {
@@ -41,7 +41,6 @@ android {
     buildFeatures {
         viewBinding = true
         dataBinding = true
-
     }
 
     aaptOptions {
@@ -50,42 +49,48 @@ android {
 }
 
 dependencies {
-    // Core Libraries
+    // Core Android libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
-    // CameraX dependencies (1.3.0)
+    // CameraX
     implementation("androidx.camera:camera-core:1.3.0")
     implementation("androidx.camera:camera-camera2:1.3.0")
     implementation("androidx.camera:camera-lifecycle:1.3.0")
     implementation("androidx.camera:camera-view:1.3.0")
     implementation("androidx.camera:camera-extensions:1.3.0")
 
-    // Navigation Component
+    // Navigation
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.3")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.3")
 
-    // Text Recognition (OCR)
+    // ML Kit OCR
     implementation(libs.text.recognition)
 
-    // Testing libraries
+    // Ktor Client (utilise uniquement une version : 2.3.9 par ex)
+    implementation("io.ktor:ktor-client-core:2.3.9")
+    implementation("io.ktor:ktor-client-cio:2.3.9")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.9")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.9")
+
+    // Kotlinx Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+
+    // TensorFlow Lite
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+
+    // MLKit
+    implementation("com.google.mlkit:text-recognition:16.0.1")
+
+    // Glide
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // Tests
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
-    // Networking (Ktor)
-    implementation("io.ktor:ktor-client-core:2.3.4")
-    implementation("io.ktor:ktor-client-cio:2.3.4")
-
-    //Tensorflow Lite
-    implementation ("org.tensorflow:tensorflow-lite:2.14.0")
-    implementation ("org.tensorflow:tensorflow-lite-support:0.4.4")
-
-
-    implementation ("com.google.mlkit:text-recognition:16.0.1")
-
 }
-

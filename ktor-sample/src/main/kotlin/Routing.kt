@@ -11,14 +11,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Application.configureRouting() {
-
     routing {
-
         get("/hello") {
             call.respondText("Hello from backend!", ContentType.Text.Plain)
         }
-
-
 
         get("/") {
             call.respondText("Bienvenue sur BiblioScan ! Le serveur fonctionne.", ContentType.Text.Plain)
@@ -28,17 +24,13 @@ fun Application.configureRouting() {
             val request = call.receive<ScanRequest>()
             val titres = request.livres_detectes
 
-            val resultats = mutableListOf<Livre>()
-            for (titre in titres) {
-                val livresTrouves = searchBookByTitle(titre)
-                resultats.addAll(livresTrouves)
+            val resultats = titres.flatMap { titre ->
+                searchBookByTitle(titre)
             }
 
             call.respond(ScanResponse(resultats))
         }
-
     }
-
-
 }
+
 

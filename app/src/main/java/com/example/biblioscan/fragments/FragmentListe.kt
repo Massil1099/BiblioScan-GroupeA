@@ -5,12 +5,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.biblioscan.R
 import com.example.biblioscan.DetectedBookAdapter
 import com.example.biblioscan.databinding.FragmentListeBinding
 import com.example.biblioscan.Book
+import com.example.biblioscan.backend.ScanRequest
+import com.example.biblioscan.backend.ScanResponse
+import com.example.biblioscan.backend.searchBooksFromTitles
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.launch
 
 class FragmentListe : Fragment() {
 
@@ -28,11 +43,9 @@ class FragmentListe : Fragment() {
         adapter = DetectedBookAdapter { book ->
             // Gérer le clic sur un livre (par exemple, ouvrir les détails)
             val bundle = Bundle().apply {
-                putString("title", book.title)
-                putString("author", book.author)
-                putString("description", book.description)
+                putParcelable("book", book)
             }
-            findNavController().navigate(R.id.action_liste_to_accueil, bundle)
+            findNavController().navigate(R.id.action_liste_to_resultat, bundle)
         }
 
         // Configurer le RecyclerView
@@ -58,24 +71,30 @@ class FragmentListe : Fragment() {
     private fun loadDetectedBooks() {
         val texts = arguments?.getStringArrayList("detectedTexts") ?: emptyList<String>()
 
-        val detectedBooks = texts.mapIndexed { index, text ->
-            Book(
-                title = text.take(30), // raccourcir pour l'affichage
-                author = "Auteur inconnu", // tu peux essayer de détecter l’auteur plus tard
-                description = text // texte complet détecté
-            )
-        }
+        lifecycleScope.launch {
+            try {
+                val detectedBooks = searchBooksFromTitles(texts)
 
-        // Afficher ou masquer le message d'état vide
-        if (detectedBooks.isEmpty()) {
-            binding.emptyContainer.visibility = View.VISIBLE
-            binding.detectedBooksRecyclerView.visibility = View.GONE
-        } else {
-            binding.emptyContainer.visibility = View.GONE
-            binding.detectedBooksRecyclerView.visibility = View.VISIBLE
-            adapter.submitList(detectedBooks)
+                if (detectedBooks.isEmpty()) {
+                    binding.emptyContainer.visibility = View.VISIBLE
+                    binding.detectedBooksRecyclerView.visibility = View.GONE
+                } else {
+                    binding.emptyContainer.visibility = View.GONE
+                    binding.detectedBooksRecyclerView.visibility = View.VISIBLE
+                    adapter.submitList(detectedBooks)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+
+                val fallbackBooks = texts.map { text ->
+                    Book(title = text.take(30), author = "Inconnu", description = text)
+                }
+                adapter.submitList(fallbackBooks)
+            }
         }
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

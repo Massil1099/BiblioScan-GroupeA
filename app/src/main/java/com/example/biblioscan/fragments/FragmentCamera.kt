@@ -140,7 +140,7 @@ class FragmentCamera : Fragment() {
                             Log.d("OCR", "Livre ${index + 1} : $text")
                         }
 
-                        // Exemple : tu pourrais maintenant naviguer vers un fragment avec les textes en paramètre
+                        // Exemple :on pourra maintenant naviguer vers un fragment avec les textes en paramètre
                         val bundle = Bundle().apply {
                             putString("capturedImagePath", savedUri)
                             putStringArrayList("detectedTexts", ArrayList(texts))
