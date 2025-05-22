@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
+
     <data />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@drawable/background_gradient">
+
+        <TextView
+            android:id="@+id/detection_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"
+            android:text="Détection..." />
 
         <ImageView
             android:id="@+id/imageView"
@@ -13,12 +25,28 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:scaleType="fitCenter"
+            android:background="@android:color/darker_gray"
             android:contentDescription="Image avec détection des livres" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <LinearLayout
+                android:id="@+id/labels_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
 
         <Button
             android:id="@+id/backButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Retour" />
+            android:layout_marginTop="16dp"
+            android:text="← Retour"
+            android:backgroundTint="@color/teal_700"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 </layout>

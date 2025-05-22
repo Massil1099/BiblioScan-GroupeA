@@ -1,46 +1,52 @@
-// FragmentConnexion.kt
 package com.example.biblioscan.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.biblioscan.R
+import com.example.biblioscan.databinding.FragmentConnexionBinding
 
 class FragmentConnexion : Fragment() {
+
+    private var _binding: FragmentConnexionBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_connexion, container, false)
+    ): View {
+        _binding = FragmentConnexionBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        val emailEditText = view.findViewById<EditText>(R.id.email_edit_text)
-        val passwordEditText = view.findViewById<EditText>(R.id.password_edit_text)
-        val loginButton = view.findViewById<Button>(R.id.login_button)
-        val guestButton = view.findViewById<Button>(R.id.guest_button)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        loginButton.setOnClickListener {
-            val email = emailEditText.text.toString()
-            val password = passwordEditText.text.toString()
-            if (email.isNotEmpty() && password.isNotEmpty()) {
-                // Navigation vers l'accueil après connexion
-                findNavController().navigate(R.id.action_connexion_to_accueil)
+        binding.loginButton.setOnClickListener {
+            val email = binding.emailEditText.text.toString()
+            val password = binding.passwordEditText.text.toString()
+
+            if (email.isNotBlank() && password.isNotBlank()) {
+                findNavController().navigate(com.example.biblioscan.R.id.action_connexion_to_accueil)
             } else {
                 Toast.makeText(requireContext(), "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show()
             }
         }
 
-        guestButton.setOnClickListener {
-            // Navigation en tant qu'invité
-            findNavController().navigate(R.id.action_connexion_to_accueil)
+        binding.guestButton.setOnClickListener {
+            findNavController().navigate(com.example.biblioscan.R.id.action_connexion_to_accueil)
         }
 
-        return view
+        binding.registerButton.setOnClickListener {
+            findNavController().navigate(com.example.biblioscan.R.id.action_connexion_to_inscription)
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

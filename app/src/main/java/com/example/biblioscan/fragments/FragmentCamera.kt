@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.biblioscan.ImageProcessing.DetectionResult
 import com.example.biblioscan.ImageProcessing.YoloBookDetector
 import com.example.biblioscan.ImageProcessing.extractTextFromBoundingBoxes
 import com.example.biblioscan.R
@@ -53,15 +54,13 @@ class FragmentCamera : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) ==
-            PackageManager.PERMISSION_GRANTED
-        ) {
+            PackageManager.PERMISSION_GRANTED) {
             startCamera()
         } else {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
 
         binding.captureButton.setOnClickListener { takePhoto() }
-
         binding.backButton.setOnClickListener {
             findNavController().navigate(R.id.action_camera_to_accueil)
         }
@@ -69,10 +68,8 @@ class FragmentCamera : Fragment() {
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
-
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(binding.cameraPreview.surfaceProvider)
             }
@@ -82,10 +79,8 @@ class FragmentCamera : Fragment() {
                 .build()
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
-
         }, ContextCompat.getMainExecutor(requireContext()))
     }
 
@@ -103,8 +98,6 @@ class FragmentCamera : Fragment() {
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     val savedPath = imageFile.absolutePath
-                    Log.d("CameraXApp", "Image sauvegardée : $savedPath")
-
                     lifecycleScope.launch {
                         val bitmap = withContext(Dispatchers.IO) {
                             BitmapFactory.decodeFile(savedPath)
@@ -128,16 +121,13 @@ class FragmentCamera : Fragment() {
                             }
                         }
 
-                        val labels = detectionResults.map { it.label }
-
                         val bundle = Bundle().apply {
                             putString("capturedImagePath", processedFile.absolutePath)
-                            putStringArrayList("detectedTexts", ArrayList(labels))
+                            putParcelableArrayList("detectionResults", ArrayList(detectionResults))
+                            putStringArrayList("detectedTexts", ArrayList(detectionResults.map { it.label }))
                         }
 
-                        if (isAdded && findNavController().currentDestination?.id == R.id.fragmentCamera) {
-                            findNavController().navigate(R.id.action_camera_to_liste, bundle)
-                        }
+                        findNavController().navigate(R.id.action_camera_to_liste, bundle)
                     }
                 }
 
@@ -148,10 +138,7 @@ class FragmentCamera : Fragment() {
         )
     }
 
-    private fun drawBoundingBoxes(
-        bitmap: Bitmap,
-        results: List<com.example.biblioscan.ImageProcessing.DetectionResult>
-    ): Bitmap {
+    private fun drawBoundingBoxes(bitmap: Bitmap, results: List<DetectionResult>): Bitmap {
         val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(mutableBitmap)
         val paint = Paint().apply {
@@ -167,9 +154,7 @@ class FragmentCamera : Fragment() {
         }
         for (result in results) {
             canvas.drawRect(result.boundingBox, paint)
-            val textX = result.boundingBox.left
-            val textY = (result.boundingBox.top - 10).coerceAtLeast(40f)
-            canvas.drawText(result.label.take(20), textX, textY, textPaint)
+            canvas.drawText(result.label.take(20), result.boundingBox.left, result.boundingBox.top - 10, textPaint)
         }
         return mutableBitmap
     }

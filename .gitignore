@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+echo ".gradle/" >> .gitignore
+echo ".idea/" >> .gitignore
+echo "local.properties" >> .gitignore
