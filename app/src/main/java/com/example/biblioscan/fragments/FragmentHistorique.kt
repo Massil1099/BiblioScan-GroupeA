@@ -8,10 +8,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.biblioscan.Book
 import com.example.biblioscan.R
 import com.example.biblioscan.DetectedBookAdapter
 import com.example.biblioscan.databinding.FragmentHistoriqueBinding
-import com.example.biblioscan.Book
 
 class FragmentHistorique : Fragment() {
 
