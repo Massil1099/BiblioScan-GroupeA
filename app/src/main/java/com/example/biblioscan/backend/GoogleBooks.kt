@@ -6,16 +6,19 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.*
 
-val client = HttpClient(CIO) {
-    install(ContentNegotiation) {
-        json()
+suspend fun searchBooksFromTitles(titles: List<String>): List<Book> = withContext(Dispatchers.IO) {
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
     }
-}
 
-suspend fun searchBooksFromTitles(titles: List<String>): List<Book> {
     val results = mutableListOf<Book>()
 
     for (title in titles) {
@@ -23,14 +26,13 @@ suspend fun searchBooksFromTitles(titles: List<String>): List<Book> {
             val response: JsonObject = client.get("https://www.googleapis.com/books/v1/volumes") {
                 parameter("q", title)
                 parameter("maxResults", 1)
+                accept(ContentType.Application.Json)
             }.body()
 
             val items = response["items"]?.jsonArray ?: continue
-
             val item = items.first().jsonObject
             val volumeInfo = item["volumeInfo"]?.jsonObject ?: continue
 
-            // Extraire l'image de meilleure qualité disponible
             val imageLinks = volumeInfo["imageLinks"]?.jsonObject
             val rawUrl = when {
                 imageLinks?.get("large") != null -> imageLinks["large"]!!.jsonPrimitive.content
@@ -38,10 +40,8 @@ suspend fun searchBooksFromTitles(titles: List<String>): List<Book> {
                 imageLinks?.get("thumbnail") != null -> imageLinks["thumbnail"]!!.jsonPrimitive.content
                 else -> null
             }
-
             val secureImageUrl = rawUrl?.replace("http://", "https://")
 
-            //  Création de l'objet Book proprement
             val book = Book(
                 title = volumeInfo["title"]?.jsonPrimitive?.content ?: "Sans titre",
                 author = volumeInfo["authors"]?.jsonArray
@@ -51,11 +51,12 @@ suspend fun searchBooksFromTitles(titles: List<String>): List<Book> {
             )
 
             results.add(book)
-
         } catch (e: Exception) {
-            // Ignorer les erreurs réseau ou parsing
+            e.printStackTrace()
+            // Ignorer et continuer avec les titres suivants
         }
     }
 
-    return results
+    client.close()
+    return@withContext results
 }

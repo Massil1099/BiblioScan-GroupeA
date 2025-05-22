@@ -1,6 +1,7 @@
-<!-- res/layout/fragment_liste.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/liste_fragment_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -15,6 +16,17 @@
         app:title="Livres Détectés"
         app:titleTextColor="@android:color/white" />
 
+    <!-- Image annotée (image avec bounding boxes) -->
+    <ImageView
+        android:id="@+id/captured_image_preview"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="12dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="Image des livres détectés"
+        android:visibility="gone" />
+
+    <!-- Message si aucun livre -->
     <LinearLayout
         android:id="@+id/empty_container"
         android:layout_width="match_parent"
@@ -53,9 +65,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Voir en temps réel"
-        android:layout_margin="16dp"
-        />
-
+        android:layout_marginTop="12dp" />
 
     <Button
         android:id="@+id/back_button"
@@ -64,5 +74,5 @@
         android:text="← RETOUR"
         android:textColor="@android:color/white"
         android:backgroundTint="@color/teal_700"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="8dp" />
 </LinearLayout>

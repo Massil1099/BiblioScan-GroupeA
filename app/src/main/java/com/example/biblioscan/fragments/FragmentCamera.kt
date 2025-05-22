@@ -1,32 +1,31 @@
-// FragmentCamera.kt
 package com.example.biblioscan.fragments
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.*
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.biblioscan.ImageProcessing.YoloBookDetector
+import com.example.biblioscan.ImageProcessing.extractTextFromBoundingBoxes
 import com.example.biblioscan.R
 import com.example.biblioscan.databinding.FragmentCameraBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-
-
-import android.graphics.BitmapFactory
-import com.example.biblioscan.ImageProcessing.YoloBookDetector
-import com.example.biblioscan.ImageProcessing.extractTextFromBoundingBoxes
-
 
 class FragmentCamera : Fragment() {
 
@@ -37,11 +36,8 @@ class FragmentCamera : Fragment() {
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                startCamera()
-            } else {
-                Log.e("CameraXApp", "Permission non accordée")
-            }
+            if (isGranted) startCamera()
+            else Log.e("CameraXApp", "Permission non accordée")
         }
 
     override fun onCreateView(
@@ -56,23 +52,16 @@ class FragmentCamera : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Vérification des permissions
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) ==
+            PackageManager.PERMISSION_GRANTED
         ) {
             startCamera()
         } else {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
 
-        // Bouton de capture
-        binding.captureButton.setOnClickListener {
-            takePhoto()
-        }
+        binding.captureButton.setOnClickListener { takePhoto() }
 
-        // Bouton de retour
         binding.backButton.setOnClickListener {
             findNavController().navigate(R.id.action_camera_to_accueil)
         }
@@ -84,20 +73,16 @@ class FragmentCamera : Fragment() {
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
 
-            // Configuration de la Preview
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(binding.cameraPreview.surfaceProvider)
             }
 
-            // Configuration pour la capture d'image
             imageCapture = ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .build()
 
-            // Sélection de la caméra arrière
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-            // Démarrer la caméra
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
 
@@ -105,56 +90,88 @@ class FragmentCamera : Fragment() {
     }
 
     private fun takePhoto() {
-        // Création du fichier pour sauvegarder l'image
-        val photoFile = File(
-            requireContext().getExternalFilesDir(null),
-            "IMG_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}.jpg"
-        )
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val dir = File(requireContext().filesDir, "images")
+        if (!dir.exists()) dir.mkdirs()
 
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+        val imageFile = File(dir, "original_$timeStamp.jpg")
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
 
-        // Capture de l'image
         imageCapture.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(requireContext()),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val savedUri = photoFile.absolutePath
-                    Log.d("CameraXApp", "Image sauvegardée : $savedUri")
+                    val savedPath = imageFile.absolutePath
+                    Log.d("CameraXApp", "Image sauvegardée : $savedPath")
 
-                    // Étape 1 : Charger le bitmap
-                    val bitmap = BitmapFactory.decodeFile(savedUri)
-
-                    // Étape 2 : Détecter les livres avec YOLO
-                    val detector = YoloBookDetector(requireContext())
-                    val results = detector.detect(bitmap)
-
-                    if (results.isEmpty()) {
-                        Log.d("CameraXApp", "Aucun livre détecté.")
-                        return
-                    }
-
-                    // Étape 3 : Appliquer OCR (extraction du texte sur les bounding boxes)
-                    extractTextFromBoundingBoxes(bitmap, results) { texts ->
-                        texts.forEachIndexed { index, text ->
-                            Log.d("OCR", "Livre ${index + 1} : $text")
+                    lifecycleScope.launch {
+                        val bitmap = withContext(Dispatchers.IO) {
+                            BitmapFactory.decodeFile(savedPath)
                         }
 
-                        // Exemple :on pourra maintenant naviguer vers un fragment avec les textes en paramètre
+                        val detector = YoloBookDetector(requireContext())
+                        val results = detector.detect(bitmap)
+
+                        if (results.isEmpty()) {
+                            Log.d("CameraXApp", "Aucun livre détecté.")
+                            return@launch
+                        }
+
+                        val detectionResults = extractTextFromBoundingBoxes(bitmap, results)
+                        val annotatedBitmap = drawBoundingBoxes(bitmap, detectionResults)
+
+                        val processedFile = File(dir, "processed_$timeStamp.jpg")
+                        withContext(Dispatchers.IO) {
+                            FileOutputStream(processedFile).use { fos ->
+                                annotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+                            }
+                        }
+
+                        val labels = detectionResults.map { it.label }
+
                         val bundle = Bundle().apply {
-                            putString("capturedImagePath", savedUri)
-                            putStringArrayList("detectedTexts", ArrayList(texts))
+                            putString("capturedImagePath", processedFile.absolutePath)
+                            putStringArrayList("detectedTexts", ArrayList(labels))
                         }
-                        findNavController().navigate(R.id.action_camera_to_liste, bundle)
+
+                        if (isAdded && findNavController().currentDestination?.id == R.id.fragmentCamera) {
+                            findNavController().navigate(R.id.action_camera_to_liste, bundle)
+                        }
                     }
                 }
 
-
                 override fun onError(exception: ImageCaptureException) {
-                    Log.e("CameraXApp", "Erreur lors de la capture : ${exception.message}", exception)
+                    Log.e("CameraXApp", "Erreur capture : ${exception.message}", exception)
                 }
             }
         )
+    }
+
+    private fun drawBoundingBoxes(
+        bitmap: Bitmap,
+        results: List<com.example.biblioscan.ImageProcessing.DetectionResult>
+    ): Bitmap {
+        val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+        val canvas = Canvas(mutableBitmap)
+        val paint = Paint().apply {
+            color = Color.RED
+            style = Paint.Style.STROKE
+            strokeWidth = 5f
+        }
+        val textPaint = Paint().apply {
+            color = Color.RED
+            textSize = 40f
+            isAntiAlias = true
+            typeface = Typeface.DEFAULT_BOLD
+        }
+        for (result in results) {
+            canvas.drawRect(result.boundingBox, paint)
+            val textX = result.boundingBox.left
+            val textY = (result.boundingBox.top - 10).coerceAtLeast(40f)
+            canvas.drawText(result.label.take(20), textX, textY, textPaint)
+        }
+        return mutableBitmap
     }
 
     override fun onDestroyView() {

@@ -53,7 +53,9 @@ class FragmentResultat : Fragment() {
             } else {
                 binding.bookImage.setImageResource(R.drawable.placeholder_book)
             }
-
+            binding.backButton.setOnClickListener {
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
             binding.favoritesButton.setOnClickListener {
                 // TODO : Enregistrer en favori ou afficher un Toast
                 // Toast.makeText(requireContext(), "Ajouté aux favoris", Toast.LENGTH_SHORT).show()
