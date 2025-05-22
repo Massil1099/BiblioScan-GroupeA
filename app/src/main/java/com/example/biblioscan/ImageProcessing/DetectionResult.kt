@@ -4,14 +4,18 @@ import android.graphics.Bitmap
 import android.graphics.RectF
 import android.os.Parcel
 import android.os.Parcelable
+import android.util.Log
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.tasks.await
 
-// Classe contenant les résultats de détection, sérialisable entre fragments
 data class DetectionResult(
     val boundingBox: RectF,
-    val confidence: Float
+    val confidence: Float,
+    var label: String = ""
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         RectF(
@@ -20,7 +24,8 @@ data class DetectionResult(
             parcel.readFloat(),
             parcel.readFloat()
         ),
-        parcel.readFloat()
+        parcel.readFloat(),
+        parcel.readString() ?: ""
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -29,6 +34,7 @@ data class DetectionResult(
         parcel.writeFloat(boundingBox.right)
         parcel.writeFloat(boundingBox.bottom)
         parcel.writeFloat(confidence)
+        parcel.writeString(label)
     }
 
     override fun describeContents(): Int = 0
@@ -44,16 +50,14 @@ data class DetectionResult(
     }
 }
 
-// Fonction pour extraire le texte des zones détectées
-fun extractTextFromBoundingBoxes(
+// Fonction suspendue avec coroutine pour le traitement OCR
+suspend fun extractTextFromBoundingBoxes(
     bitmap: Bitmap,
-    results: List<DetectionResult>,
-    onResult: (List<String>) -> Unit
-) {
+    results: List<DetectionResult>
+): List<DetectionResult> = withContext(Dispatchers.IO) {
     val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    val texts = mutableListOf<String>()
 
-    for (detection in results) {
+    results.map { detection ->
         val left = detection.boundingBox.left.toInt().coerceAtLeast(0)
         val top = detection.boundingBox.top.toInt().coerceAtLeast(0)
         val right = detection.boundingBox.right.toInt().coerceAtMost(bitmap.width)
@@ -68,18 +72,14 @@ fun extractTextFromBoundingBoxes(
         )
 
         val image = InputImage.fromBitmap(cropped, 0)
-        recognizer.process(image)
-            .addOnSuccessListener { visionText ->
-                texts.add(visionText.text)
-                if (texts.size == results.size) {
-                    onResult(texts)
-                }
-            }
-            .addOnFailureListener {
-                texts.add("")
-                if (texts.size == results.size) {
-                    onResult(texts)
-                }
-            }
+        try {
+            val result = recognizer.process(image).await() // Utilisation de extension `await()`
+            detection.label = result.text
+        } catch (e: Exception) {
+            Log.e("OCR", "Erreur OCR", e)
+            detection.label = "Erreur OCR"
+        }
+
+        detection
     }
 }

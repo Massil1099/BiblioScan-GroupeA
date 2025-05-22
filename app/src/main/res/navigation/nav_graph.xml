@@ -132,8 +132,8 @@
             app:popExitAnim="@anim/slide_out_right" />
 
         <action
-            android:id="@+id/action_resultat_to_accueil"
-            app:destination="@id/fragmentAccueil"
+            android:id="@+id/action_resultat_to_liste"
+            app:destination="@id/fragmentListe"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
