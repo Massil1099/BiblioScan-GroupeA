@@ -10,6 +10,9 @@
         android:name="com.example.biblioscan.fragments.FragmentConnexion"
         android:label="Connexion"
         tools:layout="@layout/fragment_connexion">
+        <action
+            android:id="@+id/action_connexion_to_inscription"
+            app:destination="@id/fragmentInscription" />
 
         <action
             android:id="@+id/action_connexion_to_accueil"
@@ -18,6 +21,16 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentInscription"
+        android:name="com.example.biblioscan.fragments.FragmentInscription"
+        android:label="Inscription"
+        tools:layout="@layout/fragment_inscription">
+
+        <action
+            android:id="@+id/action_inscription_to_connexion"
+            app:destination="@id/fragmentConnexion" />
     </fragment>
 
     <!-- Fragment Accueil -->
@@ -73,6 +86,9 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_camera_to_watchBooksDetection"
+            app:destination="@id/fragmentWatchBooksDetection" />
 
         <action
             android:id="@+id/action_camera_to_accueil"
@@ -90,7 +106,6 @@
         android:label="Liste"
         tools:layout="@layout/fragment_liste">
 
-
         <action
             android:id="@+id/action_liste_to_resultat"
             app:destination="@id/fragmentResultat"
@@ -98,8 +113,6 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right"  />
-
-
         <action
             android:id="@+id/action_liste_to_accueil"
             app:destination="@id/fragmentAccueil"
