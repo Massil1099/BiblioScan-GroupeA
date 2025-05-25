@@ -20,7 +20,7 @@ data class BookEntity(
 @Entity(tableName = "users")
 data class UserEntity(
     @PrimaryKey val username: String,
-    val password: String // ⚠️ Pour une vraie app, ne jamais stocker de mot de passe en clair
+    val password: String // Pour une vraie app, ne jamais stocker de mot de passe en clair
 )
 
 /**

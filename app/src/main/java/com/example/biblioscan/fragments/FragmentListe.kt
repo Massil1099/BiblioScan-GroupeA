@@ -14,6 +14,11 @@ import com.example.biblioscan.R
 import com.example.biblioscan.backend.searchBooksFromTitles
 import com.example.biblioscan.databinding.FragmentListeBinding
 import com.example.biblioscan.ImageProcessing.DetectionResult
+import com.example.biblioscan.data_app.AppDatabase
+import com.example.biblioscan.data_app.BookEntity
+import com.example.biblioscan.data_app.HistoryEntity
+import com.example.biblioscan.session.UserSessionManager
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class FragmentListe : Fragment() {
@@ -84,6 +89,9 @@ class FragmentListe : Fragment() {
                     binding.emptyContainer.visibility = View.GONE
                     binding.detectedBooksRecyclerView.visibility = View.VISIBLE
                     adapter.submitList(books)
+
+                    // ➕ AJOUT À L'HISTORIQUE
+                    saveBooksToHistory(books)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -91,9 +99,37 @@ class FragmentListe : Fragment() {
                     Book(title = it.take(30), author = "Inconnu", description = it)
                 }
                 adapter.submitList(fallbackBooks)
+
+                // Même pour fallback :
+                saveBooksToHistory(fallbackBooks)
             }
         }
     }
+    private suspend fun saveBooksToHistory(books: List<Book>) {
+        val sessionManager = UserSessionManager(requireContext())
+        val username = sessionManager.getUsername().firstOrNull()
+
+        if (username.isNullOrEmpty() || username == "guest") return
+
+        val dao = AppDatabase.getDatabase(requireContext()).biblioScanDao()
+
+        for (book in books) {
+            // Sauvegarde du livre s'il n'est pas déjà dans la table "books"
+            val bookEntity = BookEntity(
+                title = book.title,
+                author = book.author ?: "Auteur inconnu",
+                description = book.description ?: "",
+                imageUrl = book.imageUrl
+            )
+            dao.insertBook(bookEntity)
+
+            // Enregistrement dans l'historique
+            val history = HistoryEntity(username = username, bookTitle = book.title)
+            dao.addHistory(history)
+        }
+    }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

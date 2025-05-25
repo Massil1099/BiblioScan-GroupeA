@@ -4,11 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.biblioscan.Book
 import com.example.biblioscan.R
+import com.example.biblioscan.data_app.AppDatabase
+import com.example.biblioscan.data_app.BookEntity
+import com.example.biblioscan.data_app.FavoriteEntity
 import com.example.biblioscan.databinding.FragmentResultatBinding
+import com.example.biblioscan.session.UserSessionManager
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class FragmentResultat : Fragment() {
 
@@ -39,26 +47,51 @@ class FragmentResultat : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val book = arguments?.getParcelable<Book>(ARG_BOOK) ?: return
-        if (book != null) {
-            binding.bookTitle.text = book.title
-            binding.bookAuthor.text = book.author
-            binding.bookDescription.text = book.description
+        val sessionManager = UserSessionManager(requireContext())
 
-            if (!book.imageUrl.isNullOrEmpty()) {
-                Glide.with(this)
-                    .load(book.imageUrl)
-                    .placeholder(R.drawable.placeholder_book)
-                    .error(R.drawable.placeholder_book)
-                    .into(binding.bookImage)
-            } else {
-                binding.bookImage.setImageResource(R.drawable.placeholder_book)
-            }
-            binding.backButton.setOnClickListener {
-                requireActivity().onBackPressedDispatcher.onBackPressed()
-            }
-            binding.favoritesButton.setOnClickListener {
-                // TODO : Enregistrer en favori ou afficher un Toast
-                // Toast.makeText(requireContext(), "Ajouté aux favoris", Toast.LENGTH_SHORT).show()
+        binding.bookTitle.text = book.title
+        binding.bookAuthor.text = book.author
+        binding.bookDescription.text = book.description
+
+        if (!book.imageUrl.isNullOrEmpty()) {
+            Glide.with(this)
+                .load(book.imageUrl)
+                .placeholder(R.drawable.placeholder_book)
+                .error(R.drawable.placeholder_book)
+                .into(binding.bookImage)
+        } else {
+            binding.bookImage.setImageResource(R.drawable.placeholder_book)
+        }
+
+        binding.backButton.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+
+        binding.favoritesButton.setOnClickListener {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val username = sessionManager.getUsername().first()
+                if (username == null) {
+                    Toast.makeText(requireContext(), "Aucun utilisateur connecté", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+                if (username == "guest") {
+                    Toast.makeText(requireContext(), "Impossible d’ajouter en mode invité", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                val dao = AppDatabase.getDatabase(requireContext()).biblioScanDao()
+                val bookEntity = BookEntity(
+                    title = book.title,
+                    author = book.author ?: "Auteur inconnu",
+                    description = book.description ?: "",
+                    imageUrl = book.imageUrl
+                )
+                dao.insertBook(bookEntity)
+
+                val favorite = FavoriteEntity(username, book.title)
+                dao.addFavorite(favorite)
+
+                Toast.makeText(requireContext(), "Ajouté aux favoris", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -68,3 +101,4 @@ class FragmentResultat : Fragment() {
         _binding = null
     }
 }
+

@@ -20,7 +20,7 @@ fun Application.module() {
     }
 
     routing {
-        // Cette partie est utile seulement si tu veux servir des fichiers statiques (ex: une page HTML locale)
+        // Cette partie est utile seulement si on veut servir des fichiers statiques (une page HTML locale)
         static("/") {
             staticRootFolder = File("src/main/resources/static")
             files(".") // Cela servira tous les fichiers du dossier static

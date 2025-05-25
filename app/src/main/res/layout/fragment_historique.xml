@@ -56,4 +56,14 @@
         android:textColor="@android:color/white"
         android:backgroundTint="@color/teal_700"
         android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/clearHistoryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/teal_700"
+        android:text="Vider l'historique"
+        android:textColor="@android:color/white" />
+
 </LinearLayout>

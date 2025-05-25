@@ -3,6 +3,8 @@ plugins {
     kotlin("android") version "2.0.21"
     kotlin("plugin.serialization") version "2.0.21" // ✅ Ajouté
     id("kotlin-parcelize")
+    id("kotlin-kapt")
+
 }
 
 android {
@@ -124,5 +126,12 @@ dependencies {
     // optional - Paging 3 Integration
     implementation("androidx.room:room-paging:$room_version")
 
-    
+
+
+    kapt("androidx.room:room-compiler:2.7.1")
+
+
+    // Preferences DataStore (SharedPreferences like APIs)
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
+
 }

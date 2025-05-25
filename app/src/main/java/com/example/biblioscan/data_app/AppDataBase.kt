@@ -7,9 +7,8 @@ import androidx.room.RoomDatabase
 
 // Liste des entités et version de la base de données
 @Database(
-    entities = [BookEntity::class, UserEntity::class, FavoriteEntity::class, HistoryEntity::class],
-    version = 1,
-    exportSchema = false
+    entities = [UserEntity::class, BookEntity::class, FavoriteEntity::class, HistoryEntity::class],
+    version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
 
@@ -19,7 +18,7 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        fun getInstance(context: Context): AppDatabase {
+        fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,

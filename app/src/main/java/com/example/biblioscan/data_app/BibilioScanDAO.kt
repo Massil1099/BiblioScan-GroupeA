@@ -33,6 +33,13 @@ interface BiblioScanDao {
     @Query("SELECT * FROM users WHERE username = :username")
     suspend fun getUser(username: String): UserEntity?
 
+    @Query("SELECT * FROM users WHERE username = :username LIMIT 1")
+    suspend fun getUserByUsername(username: String): UserEntity?
+
+    @Query("SELECT * FROM users")
+    suspend fun getAllUsers(): List<UserEntity>
+
+
 
     // ------------------------------
     // FAVORITES

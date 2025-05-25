@@ -23,7 +23,7 @@
         android:background="@drawable/rounded_edittext_background"
         android:backgroundTint="@color/white"
         android:hint="  Nom d'utilisateur"
-        android:textColor="@color/white" />
+        android:textColor="@color/black" />
 
     <EditText
         android:id="@+id/password_edit_text"
@@ -34,7 +34,7 @@
         android:backgroundTint="@color/white"
         android:hint="  Mot de Passe"
         android:inputType="textPassword"
-        android:textColor="@color/white" />
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/login_button"
