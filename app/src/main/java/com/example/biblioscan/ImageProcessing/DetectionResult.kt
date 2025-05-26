@@ -15,7 +15,8 @@ import kotlinx.coroutines.tasks.await
 data class DetectionResult(
     val boundingBox: RectF,
     val confidence: Float,
-    var label: String = ""
+    var label: String = "",
+    var status: String = "ok"
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         RectF(
@@ -25,7 +26,8 @@ data class DetectionResult(
             parcel.readFloat()
         ),
         parcel.readFloat(),
-        parcel.readString() ?: ""
+        parcel.readString() ?: "",
+        parcel.readString() ?: "ok"
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -35,7 +37,9 @@ data class DetectionResult(
         parcel.writeFloat(boundingBox.bottom)
         parcel.writeFloat(confidence)
         parcel.writeString(label)
+        parcel.writeString(status)
     }
+
 
     override fun describeContents(): Int = 0
 
@@ -73,11 +77,13 @@ suspend fun extractTextFromBoundingBoxes(
 
         val image = InputImage.fromBitmap(cropped, 0)
         try {
-            val result = recognizer.process(image).await() // Utilisation de extension `await()`
+            val result = recognizer.process(image).await()
             detection.label = result.text
+            detection.status = if (result.text.trim().length < 5) "no_text" else "ok"
         } catch (e: Exception) {
             Log.e("OCR", "Erreur OCR", e)
             detection.label = "Erreur OCR"
+            detection.status = "ignored"
         }
 
         detection

@@ -44,20 +44,34 @@ class FragmentWatchBooksDetection : Fragment() {
                 val bitmapWithBoxes = drawBoundingBoxes(bitmap, detectionResults)
                 binding.imageView.setImageBitmap(bitmapWithBoxes)
 
+                // ➕ Nombre de livres détectés
                 binding.detectionInfo.text = "📚 ${detectionResults.size} livre(s) détecté(s)"
-                detectionResults.forEachIndexed { index, result ->
-                    val labelView = TextView(requireContext()).apply {
-                        text = "Livre ${index + 1} : ${result.label}"
-                        textSize = 14f
-                        setTextColor(Color.WHITE)
-                        setPadding(0, 8, 0, 8)
-                    }
-                    binding.labelsContainer.addView(labelView)
-                }
 
+                // ➕ Ajouter une étiquette pour chaque résultat
+                detectionResults.forEachIndexed { index, result ->
+                    val label = when (result.status) {
+                        "no_text" -> "❗ Aucun texte détecté"
+                        "ignored" -> "⚠️ Échec de l'OCR"
+                        else -> result.label.take(100)
+                    }
+
+                    val textView = TextView(requireContext()).apply {
+                        text = "Livre ${index + 1} : $label"
+                        setTextColor(
+                            when (result.status) {
+                                "no_text" -> Color.YELLOW
+                                "ignored" -> Color.RED
+                                else -> Color.WHITE
+                            }
+                        )
+                        textSize = 14f
+                        setPadding(0, 4, 0, 4)
+                    }
+                    binding.labelsContainer.addView(textView)
+                }
             } else {
                 binding.imageView.setImageResource(android.R.color.darker_gray)
-                binding.detectionInfo.text = "Erreur de chargement de l’image."
+                binding.detectionInfo.text = "Impossible de charger l’image."
             }
         } else {
             binding.imageView.setImageResource(android.R.color.darker_gray)
@@ -78,18 +92,20 @@ class FragmentWatchBooksDetection : Fragment() {
             strokeWidth = 5f
         }
         val textPaint = Paint().apply {
-            color = Color.YELLOW
-            textSize = 36f
+            color = Color.RED
+            textSize = 40f
             isAntiAlias = true
             typeface = Typeface.DEFAULT_BOLD
         }
 
-        for ((index, result) in results.withIndex()) {
+        for (result in results) {
             canvas.drawRect(result.boundingBox, paint)
-            val label = "Livre ${index + 1}"
-            val textX = result.boundingBox.left
-            val textY = (result.boundingBox.top - 10).coerceAtLeast(40f)
-            canvas.drawText(label, textX, textY, textPaint)
+            val text = when (result.status) {
+                "no_text" -> "❓"
+                "ignored" -> "❌"
+                else -> result.label.take(20)
+            }
+            canvas.drawText(text, result.boundingBox.left, result.boundingBox.top - 10, textPaint)
         }
 
         return mutableBitmap
