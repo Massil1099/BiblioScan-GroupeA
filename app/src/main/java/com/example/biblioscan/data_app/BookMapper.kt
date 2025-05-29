@@ -8,7 +8,15 @@ fun BookEntity.toBook(): Book {
         title = this.title,
         author = this.author,
         description = this.description,
-        imageUrl = this.imageUrl
+        imageUrl = this.imageUrl,
+        publisher = this.publisher,
+        publishedDate = this.publishedDate,
+        pageCount = this.pageCount,
+        categories = this.categories?.split(",")?.map { it.trim() },
+        language = this.language,
+        isbn13 = this.isbn13,
+        averageRating = this.averageRating,
+        ratingsCount = this.ratingsCount
     )
 }
 
@@ -18,6 +26,14 @@ fun Book.toEntity(): BookEntity {
         title = this.title,
         author = this.author,
         description = this.description,
-        imageUrl = this.imageUrl
+        imageUrl = this.imageUrl,
+        publisher = this.publisher,
+        publishedDate = this.publishedDate,
+        pageCount = this.pageCount,
+        categories = this.categories?.joinToString(","),
+        language = this.language,
+        isbn13 = this.isbn13,
+        averageRating = this.averageRating,
+        ratingsCount = this.ratingsCount
     )
 }

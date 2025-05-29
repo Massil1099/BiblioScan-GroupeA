@@ -33,6 +33,7 @@ suspend fun searchBooksFromTitles(titles: List<String>): List<Book> = withContex
             val item = items.first().jsonObject
             val volumeInfo = item["volumeInfo"]?.jsonObject ?: continue
 
+            // Récupération des images
             val imageLinks = volumeInfo["imageLinks"]?.jsonObject
             val rawUrl = when {
                 imageLinks?.get("large") != null -> imageLinks["large"]!!.jsonPrimitive.content
@@ -42,12 +43,33 @@ suspend fun searchBooksFromTitles(titles: List<String>): List<Book> = withContex
             }
             val secureImageUrl = rawUrl?.replace("http://", "https://")
 
+            // Récupération des catégories
+            val categories = volumeInfo["categories"]?.jsonArray?.map { it.jsonPrimitive.content }
+
+            // Récupération des ISBN13
+            val isbn13 = volumeInfo["industryIdentifiers"]?.jsonArray
+                ?.firstOrNull {
+                    it.jsonObject["type"]?.jsonPrimitive?.content == "ISBN_13"
+                }?.jsonObject?.get("identifier")?.jsonPrimitive?.content
+
+            // Récupération de la note moyenne et du nombre d'avis
+            val averageRating = volumeInfo["averageRating"]?.jsonPrimitive?.doubleOrNull
+            val ratingsCount = volumeInfo["ratingsCount"]?.jsonPrimitive?.intOrNull
+
             val book = Book(
                 title = volumeInfo["title"]?.jsonPrimitive?.content ?: "Sans titre",
                 author = volumeInfo["authors"]?.jsonArray
                     ?.joinToString(", ") { it.jsonPrimitive.content } ?: "Auteur inconnu",
                 description = volumeInfo["description"]?.jsonPrimitive?.content ?: "Pas de description",
-                imageUrl = secureImageUrl
+                imageUrl = secureImageUrl,
+                publisher = volumeInfo["publisher"]?.jsonPrimitive?.content,
+                publishedDate = volumeInfo["publishedDate"]?.jsonPrimitive?.content,
+                pageCount = volumeInfo["pageCount"]?.jsonPrimitive?.intOrNull,
+                categories = categories,
+                language = volumeInfo["language"]?.jsonPrimitive?.content,
+                isbn13 = isbn13,
+                averageRating = averageRating,
+                ratingsCount = ratingsCount
             )
 
             results.add(book)
@@ -60,3 +82,4 @@ suspend fun searchBooksFromTitles(titles: List<String>): List<Book> = withContex
     client.close()
     return@withContext results
 }
+

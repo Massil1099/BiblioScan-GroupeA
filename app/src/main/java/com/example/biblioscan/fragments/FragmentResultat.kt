@@ -63,6 +63,16 @@ class FragmentResultat : Fragment() {
             binding.bookImage.setImageResource(R.drawable.placeholder_book)
         }
 
+        // Affichage des nouvelles infos avec labels
+        binding.bookPublisher.text = "Éditeur : ${book.publisher ?: "Inconnu"}"
+        binding.bookPublishedDate.text = "Date de publication : ${book.publishedDate ?: "Inconnue"}"
+        binding.bookPageCount.text = "Nombre de pages : ${book.pageCount?.toString() ?: "N/A"}"
+        binding.bookCategories.text = "Catégories : ${book.categories?.joinToString(", ") ?: "Aucune"}"
+        binding.bookLanguage.text = "Langue : ${book.language?.uppercase() ?: "N/A"}"
+        binding.bookIsbn13.text = "ISBN13 : ${book.isbn13 ?: "N/A"}"
+        binding.bookAverageRating.text = "Note moyenne : ${book.averageRating?.toString() ?: "N/A"}"
+        binding.bookRatingsCount.text = "Nombre d’avis : ${book.ratingsCount?.toString() ?: "N/A"}"
+
         binding.backButton.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
@@ -101,4 +111,5 @@ class FragmentResultat : Fragment() {
         _binding = null
     }
 }
+
 

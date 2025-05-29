@@ -8,5 +8,15 @@ data class Book(
     val title: String,
     val author: String,
     val description: String,
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
+    val publisher: String?,
+    val publishedDate: String?,
+    val pageCount: Int?,
+    val categories: List<String>?,
+    val language: String?,
+    val isbn13: String?,
+    val averageRating: Double?,
+    val ratingsCount: Int?,
 ) : Parcelable
+
+

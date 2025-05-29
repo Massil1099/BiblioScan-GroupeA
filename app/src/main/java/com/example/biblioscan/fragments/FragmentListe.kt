@@ -96,8 +96,22 @@ class FragmentListe : Fragment() {
             } catch (e: Exception) {
                 e.printStackTrace()
                 val fallbackBooks = detectedTexts.map {
-                    Book(title = it.take(30), author = "Inconnu", description = it)
+                    Book(
+                        title = it.take(30),
+                        author = "Inconnu",
+                        description = it,
+                        imageUrl = null,
+                        averageRating = 0.0,
+                        categories = emptyList(),
+                        isbn13 = "",
+                        language = "fr",
+                        pageCount = 0,
+                        publishedDate = "",
+                        publisher = "Inconnu",
+                        ratingsCount = 0
+                    )
                 }
+
                 adapter.submitList(fallbackBooks)
 
                 // Même pour fallback :

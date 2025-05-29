@@ -11,7 +11,15 @@ data class BookEntity(
     @PrimaryKey val title: String, // Peut être remplacé par un id unique si besoin
     val author: String,
     val description: String,
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
+    val publisher: String? = null,
+    val publishedDate: String? = null,
+    val pageCount: Int? = null,
+    val categories: String? = null, // Stockées sous forme de chaîne séparée par des virgules
+    val language: String? = null,
+    val isbn13: String? = null,
+    val averageRating: Double? = null,
+    val ratingsCount: Int? = null
 )
 
 /**
