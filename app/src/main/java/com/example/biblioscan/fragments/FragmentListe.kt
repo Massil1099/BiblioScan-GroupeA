@@ -11,9 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.biblioscan.Book
 import com.example.biblioscan.DetectedBookAdapter
 import com.example.biblioscan.R
-import com.example.biblioscan.backend.searchBooksFromTitles
 import com.example.biblioscan.databinding.FragmentListeBinding
 import com.example.biblioscan.ImageProcessing.DetectionResult
+import com.example.biblioscan.backend.searchBooksByAuthorAndTitle
 import com.example.biblioscan.data_app.AppDatabase
 import com.example.biblioscan.data_app.BookEntity
 import com.example.biblioscan.data_app.HistoryEntity
@@ -72,6 +72,8 @@ class FragmentListe : Fragment() {
         return binding.root
     }
 
+    private val serverUrl = "http://172.16.1.217:8000" // à adapter (localhost ne marche pas sur Android émulateur)
+
     private fun loadDetectedBooks() {
         if (detectedTexts.isEmpty()) {
             binding.emptyContainer.visibility = View.VISIBLE
@@ -81,7 +83,8 @@ class FragmentListe : Fragment() {
 
         lifecycleScope.launch {
             try {
-                val books = searchBooksFromTitles(detectedTexts)
+                // Ici on appelle ta nouvelle fonction, avec le serveur et la liste de textes OCR
+                val books = searchBooksByAuthorAndTitle(detectedTexts, serverUrl)
                 if (books.isEmpty()) {
                     binding.emptyContainer.visibility = View.VISIBLE
                     binding.detectedBooksRecyclerView.visibility = View.GONE
@@ -90,11 +93,12 @@ class FragmentListe : Fragment() {
                     binding.detectedBooksRecyclerView.visibility = View.VISIBLE
                     adapter.submitList(books)
 
-                    // ➕ AJOUT À L'HISTORIQUE
+                    // Sauvegarde dans l'historique
                     saveBooksToHistory(books)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+
                 val fallbackBooks = detectedTexts.map {
                     Book(
                         title = it.take(30),
@@ -111,7 +115,6 @@ class FragmentListe : Fragment() {
                         ratingsCount = 0
                     )
                 }
-
                 adapter.submitList(fallbackBooks)
 
                 // Même pour fallback :
@@ -119,6 +122,7 @@ class FragmentListe : Fragment() {
             }
         }
     }
+
     private suspend fun saveBooksToHistory(books: List<Book>) {
         val sessionManager = UserSessionManager(requireContext())
         val username = sessionManager.getUsername().firstOrNull()
