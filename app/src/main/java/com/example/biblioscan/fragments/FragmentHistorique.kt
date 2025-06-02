@@ -1,5 +1,6 @@
 package com.example.biblioscan.fragments
 
+import DetectedBookAdapter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +11,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.biblioscan.R
-import com.example.biblioscan.DetectedBookAdapter
 import com.example.biblioscan.data_app.AppDatabase
 import com.example.biblioscan.data_app.toBook
 import com.example.biblioscan.databinding.FragmentHistoriqueBinding
@@ -39,12 +39,22 @@ class FragmentHistorique : Fragment() {
         sessionManager = UserSessionManager(requireContext())
 
         // Initialiser l’adaptateur
-        adapter = DetectedBookAdapter { book ->
-            val bundle = Bundle().apply {
-                putParcelable("book", book)
+        adapter = DetectedBookAdapter(
+            onBookClick = { book ->
+                // Gérer le clic sur un livre dans l'historique
+                // Exemple : navigation vers un détail
+                val bundle = Bundle().apply {
+                    putString("title", book.title)
+                    putString("author", book.author)
+                    putString("description", book.description)
+                }
+                findNavController().navigate(R.id.action_historique_to_resultat, bundle)
+            },
+            onChooseEditionClick = { book ->
+                // Pas d'action ici pour le moment, ou éventuellement afficher un message
             }
-            findNavController().navigate(R.id.action_historique_to_resultat, bundle)
-        }
+        )
+
 
         binding.historyRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.historyRecyclerView.adapter = adapter

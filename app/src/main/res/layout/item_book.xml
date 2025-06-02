@@ -54,6 +54,13 @@
                 android:layout_marginTop="4dp"
                 android:maxLines="1"
                 android:ellipsize="end" />
+            <Button
+                android:id="@+id/button_choose_edition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choisir une édition"
+                android:layout_marginTop="8dp"/>
+
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

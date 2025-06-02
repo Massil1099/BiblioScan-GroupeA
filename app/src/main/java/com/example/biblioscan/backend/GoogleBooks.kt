@@ -83,3 +83,92 @@ suspend fun searchBooksFromTitles(titles: List<String>): List<Book> = withContex
     return@withContext results
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+suspend fun searchEditions(title: String): List<Book> = withContext(Dispatchers.IO) {
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+    }
+
+    val editions = mutableListOf<Book>()
+
+    try {
+        val response: JsonObject = client.get("https://www.googleapis.com/books/v1/volumes") {
+            parameter("q", "intitle:$title")
+            parameter("maxResults", 3) // On peut en récupérer jusqu'à 3 max, 
+            accept(ContentType.Application.Json)
+        }.body()
+
+        val items = response["items"]?.jsonArray ?: return@withContext emptyList()
+
+        for (item in items) {
+            try {
+                val obj = item.jsonObject
+                val volumeInfo = obj["volumeInfo"]?.jsonObject ?: continue
+
+                val imageLinks = volumeInfo["imageLinks"]?.jsonObject
+                val rawUrl = when {
+                    imageLinks?.get("large") != null -> imageLinks["large"]!!.jsonPrimitive.content
+                    imageLinks?.get("medium") != null -> imageLinks["medium"]!!.jsonPrimitive.content
+                    imageLinks?.get("thumbnail") != null -> imageLinks["thumbnail"]!!.jsonPrimitive.content
+                    else -> null
+                }
+                val secureImageUrl = rawUrl?.replace("http://", "https://")
+
+                val categories = volumeInfo["categories"]?.jsonArray?.map { it.jsonPrimitive.content }
+
+                val isbn13 = volumeInfo["industryIdentifiers"]?.jsonArray
+                    ?.firstOrNull {
+                        it.jsonObject["type"]?.jsonPrimitive?.content == "ISBN_13"
+                    }?.jsonObject?.get("identifier")?.jsonPrimitive?.content
+
+                val averageRating = volumeInfo["averageRating"]?.jsonPrimitive?.doubleOrNull
+                val ratingsCount = volumeInfo["ratingsCount"]?.jsonPrimitive?.intOrNull
+
+                val book = Book(
+                    title = volumeInfo["title"]?.jsonPrimitive?.content ?: "Sans titre",
+                    author = volumeInfo["authors"]?.jsonArray
+                        ?.joinToString(", ") { it.jsonPrimitive.content } ?: "Auteur inconnu",
+                    description = volumeInfo["description"]?.jsonPrimitive?.content ?: "Pas de description",
+                    imageUrl = secureImageUrl,
+                    publisher = volumeInfo["publisher"]?.jsonPrimitive?.content,
+                    publishedDate = volumeInfo["publishedDate"]?.jsonPrimitive?.content,
+                    pageCount = volumeInfo["pageCount"]?.jsonPrimitive?.intOrNull,
+                    categories = categories,
+                    language = volumeInfo["language"]?.jsonPrimitive?.content,
+                    isbn13 = isbn13,
+                    averageRating = averageRating,
+                    ratingsCount = ratingsCount
+                )
+
+                editions.add(book)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // Ignorer l'élément erroné
+            }
+        }
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+
+    client.close()
+    return@withContext editions
+}

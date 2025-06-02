@@ -1,55 +1,73 @@
-// DetectedBookAdapter.kt
-package com.example.biblioscan
-
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.biblioscan.Book
+import com.example.biblioscan.R
+import com.example.biblioscan.databinding.ItemBookBinding
+import com.example.biblioscan.multipleEditions.BookDiffCallback
 
 class DetectedBookAdapter(
-    private val onBookClick: (Book) -> Unit
+    private val onBookClick: (Book) -> Unit,
+    private val onChooseEditionClick: (List<Book>) -> Unit,
+    editionsMap: Map<String, List<Book>> = emptyMap()
 ) : ListAdapter<Book, DetectedBookAdapter.BookViewHolder>(BookDiffCallback()) {
 
-    class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val bookImage: ImageView = itemView.findViewById(R.id.book_image)
-        private val bookTitle: TextView = itemView.findViewById(R.id.book_title)
-        private val bookAuthor: TextView = itemView.findViewById(R.id.book_author)
+    var editionsMap: Map<String, List<Book>> = editionsMap
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
-        fun bind(book: Book, onBookClick: (Book) -> Unit) {
-            bookTitle.text = book.title
-            bookAuthor.text = book.author
+    inner class BookViewHolder(private val binding: ItemBookBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-            // Description pour les lecteurs d'écran
-            itemView.contentDescription = "${book.title} par ${book.author}"
+        fun bind(book: Book) {
+            binding.bookTitle.text = book.title
+            binding.bookAuthor.text = book.author ?: "Auteur inconnu"
+            binding.root.contentDescription = "${book.title} par ${book.author ?: "inconnu"}"
 
-            // Placeholder pour l'image du livre
-            bookImage.setImageResource(R.drawable.result_placeholder)
+            // Affichage d'image si disponible
+            if (!book.imageUrl.isNullOrEmpty()) {
+                Glide.with(binding.bookImage.context)
+                    .load(book.imageUrl)
+                    .placeholder(R.drawable.result_placeholder)
+                    .into(binding.bookImage)
+            } else {
+                binding.bookImage.setImageResource(R.drawable.result_placeholder)
+            }
 
-            // Gestion du clic
-            itemView.setOnClickListener { onBookClick(book) }
+            // Récupération des éditions avec clé normalisée
+            val editions = editionsMap[book.editionKey()] ?: listOf(book)
+
+
+            if (editions.size > 1) {
+                binding.buttonChooseEdition.visibility = View.VISIBLE
+                binding.buttonChooseEdition.setOnClickListener {
+                    onChooseEditionClick(editions)
+                }
+            } else {
+                binding.buttonChooseEdition.visibility = View.GONE
+            }
+
+            // Action de clic sur tout le livre
+            binding.root.setOnClickListener {
+                onBookClick(book)
+            }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_book, parent, false)
-        return BookViewHolder(view)
+        val binding = ItemBookBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return BookViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
-        holder.bind(getItem(position), onBookClick)
+        holder.bind(getItem(position))
     }
 }
 
-class BookDiffCallback : DiffUtil.ItemCallback<Book>() {
-    override fun areItemsTheSame(oldItem: Book, newItem: Book): Boolean {
-        return oldItem.title == newItem.title
-    }
 
-    override fun areContentsTheSame(oldItem: Book, newItem: Book): Boolean {
-        return oldItem == newItem
-    }
-}
+
