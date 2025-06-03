@@ -1,9 +1,6 @@
 package com.example.biblioscan.backend
 
-import android.util.Log
 import com.example.biblioscan.Book
-import com.example.biblioscan.personsAPI.AuthorsResponse
-import com.example.biblioscan.personsAPI.NetworkClient
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -15,41 +12,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.*
 
-suspend fun searchBooksByAuthorAndTitle(
-    textsFromOCR: List<String>,
-    serverUrl: String
-): List<Book> = withContext(Dispatchers.IO) {
+suspend fun searchBooksFromTitles(titles: List<String>): List<Book> = withContext(Dispatchers.IO) {
     val client = HttpClient(CIO) {
-        install(ContentNegotiation) { json() }
+        install(ContentNegotiation) {
+            json()
+        }
     }
 
     val results = mutableListOf<Book>()
 
-    for (text in textsFromOCR) {
+    for (title in titles) {
         try {
-            // Log texte brut extrait par OCR
-            Log.d("OCR_ANALYSIS", "Texte OCR brut : \"$text\"")
-
-            // 1. Appel NER
-            val authorsResponse = NetworkClient.client.post("$serverUrl/detect_authors/") {
-                contentType(ContentType.Application.Json)
-                setBody(mapOf("text" to text))
-            }.body<AuthorsResponse>()
-
-            val authors = authorsResponse.entities.map { it.word }
-            val authorDetected = authors.firstOrNull() ?: "aucun"
-
-            // Supprimer l'auteur pour avoir un titre approximatif
-            val titleQuery = text.replace(authorDetected, "").trim()
-
-            // Log nom d'auteur détecté et texte restant
-            Log.d("OCR_ANALYSIS", "Auteur détecté : \"$authorDetected\" | Texte sans auteur : \"$titleQuery\"")
-
-            // Requête Google Books
-            val googleQuery = (if (authorDetected != "aucun") "inauthor:$authorDetected " else "") + titleQuery
-
             val response: JsonObject = client.get("https://www.googleapis.com/books/v1/volumes") {
-                parameter("q", googleQuery)
+                parameter("q", title)
                 parameter("maxResults", 1)
                 accept(ContentType.Application.Json)
             }.body()
@@ -58,23 +33,33 @@ suspend fun searchBooksByAuthorAndTitle(
             val item = items.first().jsonObject
             val volumeInfo = item["volumeInfo"]?.jsonObject ?: continue
 
-            // Extraction infos livre...
+            // Récupération des images
             val imageLinks = volumeInfo["imageLinks"]?.jsonObject
-            val rawUrl = imageLinks?.get("large")?.jsonPrimitive?.content
-                ?: imageLinks?.get("medium")?.jsonPrimitive?.content
-                ?: imageLinks?.get("thumbnail")?.jsonPrimitive?.content
+            val rawUrl = when {
+                imageLinks?.get("large") != null -> imageLinks["large"]!!.jsonPrimitive.content
+                imageLinks?.get("medium") != null -> imageLinks["medium"]!!.jsonPrimitive.content
+                imageLinks?.get("thumbnail") != null -> imageLinks["thumbnail"]!!.jsonPrimitive.content
+                else -> null
+            }
             val secureImageUrl = rawUrl?.replace("http://", "https://")
+
+            // Récupération des catégories
             val categories = volumeInfo["categories"]?.jsonArray?.map { it.jsonPrimitive.content }
+
+            // Récupération des ISBN13
             val isbn13 = volumeInfo["industryIdentifiers"]?.jsonArray
-                ?.firstOrNull { it.jsonObject["type"]?.jsonPrimitive?.content == "ISBN_13" }
-                ?.jsonObject?.get("identifier")?.jsonPrimitive?.content
+                ?.firstOrNull {
+                    it.jsonObject["type"]?.jsonPrimitive?.content == "ISBN_13"
+                }?.jsonObject?.get("identifier")?.jsonPrimitive?.content
+
+            // Récupération de la note moyenne et du nombre d'avis
             val averageRating = volumeInfo["averageRating"]?.jsonPrimitive?.doubleOrNull
             val ratingsCount = volumeInfo["ratingsCount"]?.jsonPrimitive?.intOrNull
 
             val book = Book(
                 title = volumeInfo["title"]?.jsonPrimitive?.content ?: "Sans titre",
-                author = volumeInfo["authors"]?.jsonArray?.joinToString(", ") { it.jsonPrimitive.content }
-                    ?: "Auteur inconnu",
+                author = volumeInfo["authors"]?.jsonArray
+                    ?.joinToString(", ") { it.jsonPrimitive.content } ?: "Auteur inconnu",
                 description = volumeInfo["description"]?.jsonPrimitive?.content ?: "Pas de description",
                 imageUrl = secureImageUrl,
                 publisher = volumeInfo["publisher"]?.jsonPrimitive?.content,
@@ -90,9 +75,11 @@ suspend fun searchBooksByAuthorAndTitle(
             results.add(book)
         } catch (e: Exception) {
             e.printStackTrace()
+            // Ignorer et continuer avec les titres suivants
         }
     }
 
     client.close()
     return@withContext results
 }
+
