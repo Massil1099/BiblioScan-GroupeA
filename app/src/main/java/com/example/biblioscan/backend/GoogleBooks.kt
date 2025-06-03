@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.biblioscan.Book
 import com.example.biblioscan.personsAPI.AuthorsResponse
 import com.example.biblioscan.personsAPI.NetworkClient
+import com.example.biblioscan.sem_matching_API.MatchResponse
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -27,26 +28,35 @@ suspend fun searchBooksByAuthorAndTitle(
 
     for (text in textsFromOCR) {
         try {
-            // Log texte brut extrait par OCR
-            Log.d("OCR_ANALYSIS", "Texte OCR brut : \"$text\"")
+            Log.d("OCR_ANALYSIS", "1. Texte OCR brut : \"$text\"")
 
-            // 1. Appel NER
-            val authorsResponse = NetworkClient.client.post("$serverUrl/detect_authors/") {
+            // 1. Appel NER pour détecter les auteurs
+            val authorsResponse = client.post("$serverUrl/detect_authors/") {
                 contentType(ContentType.Application.Json)
                 setBody(mapOf("text" to text))
             }.body<AuthorsResponse>()
 
             val authors = authorsResponse.entities.map { it.word }
             val authorDetected = authors.firstOrNull() ?: "aucun"
+            Log.d("OCR_ANALYSIS", "2. Auteur détecté : $authorDetected")
 
-            // Supprimer l'auteur pour avoir un titre approximatif
-            val titleQuery = text.replace(authorDetected, "").trim()
+            // Nettoyage : supprimer auteur du texte brut
+            val cleanedTitle = text.replace(authorDetected, "", ignoreCase = true).trim()
+            Log.d("OCR_ANALYSIS", "3. Texte sans auteur : \"$cleanedTitle\"")
 
-            // Log nom d'auteur détecté et texte restant
-            Log.d("OCR_ANALYSIS", "Auteur détecté : \"$authorDetected\" | Texte sans auteur : \"$titleQuery\"")
+            // 2. Appel au serveur FastAPI pour titre similaire
+            val matchResponse = client.post("$serverUrl/match_title/") {
+                contentType(ContentType.Application.Json)
+                setBody(mapOf("text" to text))
+            }.body<MatchResponse>()
 
-            // Requête Google Books
-            val googleQuery = (if (authorDetected != "aucun") "inauthor:$authorDetected " else "") + titleQuery
+            val bestMatchTitle = matchResponse.matches.firstOrNull()?.title ?: ""
+            Log.d("OCR_ANALYSIS", "4. Titre le plus similaire : \"$bestMatchTitle\"")
+
+            // 3. Création de la requête Google Books
+            val queryTitle = if (bestMatchTitle.isNotEmpty()) bestMatchTitle else cleanedTitle
+            val googleQuery = (if (authorDetected != "aucun") "inauthor:$authorDetected " else "") + queryTitle
+            Log.d("OCR_ANALYSIS", "5. Requête Google Books : \"$googleQuery\"")
 
             val response: JsonObject = client.get("https://www.googleapis.com/books/v1/volumes") {
                 parameter("q", googleQuery)
@@ -58,7 +68,6 @@ suspend fun searchBooksByAuthorAndTitle(
             val item = items.first().jsonObject
             val volumeInfo = item["volumeInfo"]?.jsonObject ?: continue
 
-            // Extraction infos livre...
             val imageLinks = volumeInfo["imageLinks"]?.jsonObject
             val rawUrl = imageLinks?.get("large")?.jsonPrimitive?.content
                 ?: imageLinks?.get("medium")?.jsonPrimitive?.content
@@ -87,12 +96,17 @@ suspend fun searchBooksByAuthorAndTitle(
                 ratingsCount = ratingsCount
             )
 
+            Log.d("OCR_ANALYSIS", "6. Livre détecté : ${book.title} par ${book.author}")
+
             results.add(book)
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.e("OCR_ANALYSIS", "Erreur pendant la recherche : ${e.message}")
         }
     }
 
     client.close()
     return@withContext results
 }
+
+

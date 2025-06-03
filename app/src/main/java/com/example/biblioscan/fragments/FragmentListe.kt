@@ -1,6 +1,7 @@
 package com.example.biblioscan.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,7 @@ import com.example.biblioscan.session.UserSessionManager
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
+
 class FragmentListe : Fragment() {
 
     private var _binding: FragmentListeBinding? = null
@@ -30,6 +32,8 @@ class FragmentListe : Fragment() {
     private var capturedImagePath: String? = null
     private var detectionResults: ArrayList<DetectionResult> = arrayListOf()
     private var detectedTexts: List<String> = emptyList()
+
+    private val serverUrl = "http://172.16.1.217:8000" // à adapter selon réseau
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,10 +73,9 @@ class FragmentListe : Fragment() {
         }
 
         loadDetectedBooks()
+
         return binding.root
     }
-
-    private val serverUrl = "http://172.16.1.217:8000" // à adapter (localhost ne marche pas sur Android émulateur)
 
     private fun loadDetectedBooks() {
         if (detectedTexts.isEmpty()) {
@@ -83,42 +86,23 @@ class FragmentListe : Fragment() {
 
         lifecycleScope.launch {
             try {
-                // Ici on appelle ta nouvelle fonction, avec le serveur et la liste de textes OCR
-                val books = searchBooksByAuthorAndTitle(detectedTexts, serverUrl)
-                if (books.isEmpty()) {
+                val results = searchBooksByAuthorAndTitle(detectedTexts, serverUrl)
+
+                if (results.isEmpty()) {
                     binding.emptyContainer.visibility = View.VISIBLE
                     binding.detectedBooksRecyclerView.visibility = View.GONE
                 } else {
                     binding.emptyContainer.visibility = View.GONE
                     binding.detectedBooksRecyclerView.visibility = View.VISIBLE
-                    adapter.submitList(books)
+                    adapter.submitList(results)
 
-                    // Sauvegarde dans l'historique
-                    saveBooksToHistory(books)
+                    // Sauvegarde en base
+                    saveBooksToHistory(results)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
-
-                val fallbackBooks = detectedTexts.map {
-                    Book(
-                        title = it.take(30),
-                        author = "Inconnu",
-                        description = it,
-                        imageUrl = null,
-                        averageRating = 0.0,
-                        categories = emptyList(),
-                        isbn13 = "",
-                        language = "fr",
-                        pageCount = 0,
-                        publishedDate = "",
-                        publisher = "Inconnu",
-                        ratingsCount = 0
-                    )
-                }
-                adapter.submitList(fallbackBooks)
-
-                // Même pour fallback :
-                saveBooksToHistory(fallbackBooks)
+                Log.e("OCR_FLOW", "Erreur lors de la recherche des livres : ${e.message}")
+                binding.emptyContainer.visibility = View.VISIBLE
+                binding.detectedBooksRecyclerView.visibility = View.GONE
             }
         }
     }
@@ -132,7 +116,6 @@ class FragmentListe : Fragment() {
         val dao = AppDatabase.getDatabase(requireContext()).biblioScanDao()
 
         for (book in books) {
-            // Sauvegarde du livre s'il n'est pas déjà dans la table "books"
             val bookEntity = BookEntity(
                 title = book.title,
                 author = book.author ?: "Auteur inconnu",
@@ -141,13 +124,10 @@ class FragmentListe : Fragment() {
             )
             dao.insertBook(bookEntity)
 
-            // Enregistrement dans l'historique
             val history = HistoryEntity(username = username, bookTitle = book.title)
             dao.addHistory(history)
         }
     }
-
-
 
     override fun onDestroyView() {
         super.onDestroyView()
