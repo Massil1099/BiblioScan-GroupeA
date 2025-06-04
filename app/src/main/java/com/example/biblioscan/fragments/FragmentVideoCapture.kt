@@ -25,9 +25,27 @@ import androidx.navigation.fragment.findNavController
 import com.example.biblioscan.databinding.FragmentVideoCaptureBinding
 import java.util.concurrent.Executors
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
+import android.media.MediaMetadataRetriever
+import android.net.Uri
+import android.util.Log
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
+import com.example.biblioscan.ImageProcessing.DetectionResult
+import com.example.biblioscan.ImageProcessing.YoloBookDetector
+import com.example.biblioscan.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 class FragmentVideoCapture : Fragment() {
 
@@ -43,9 +61,8 @@ class FragmentVideoCapture : Fragment() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val allGranted = permissions.all { it.value }
-        if (allGranted) {
-            startCamera()
-        } else {
+        if (allGranted) startCamera()
+        else {
             Toast.makeText(requireContext(), "Permissions manquantes", Toast.LENGTH_SHORT).show()
             findNavController().navigateUp()
         }
@@ -62,7 +79,6 @@ class FragmentVideoCapture : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.btnStartRecording.setOnClickListener { startRecording() }
         binding.btnStopRecording.setOnClickListener { stopRecording() }
-
         checkPermissions()
     }
 
@@ -71,11 +87,9 @@ class FragmentVideoCapture : Fragment() {
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO
         )
-
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
-
         permissionLauncher.launch(permissions.toTypedArray())
     }
 
@@ -94,17 +108,11 @@ class FragmentVideoCapture : Fragment() {
                 .build()
 
             videoCapture = VideoCapture.withOutput(recorder)
-
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             try {
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
-                    viewLifecycleOwner,
-                    cameraSelector,
-                    preview,
-                    videoCapture
-                )
+                cameraProvider.bindToLifecycle(viewLifecycleOwner, cameraSelector, preview, videoCapture)
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Erreur caméra : ${e.message}", Toast.LENGTH_SHORT).show()
             }
@@ -124,19 +132,18 @@ class FragmentVideoCapture : Fragment() {
             }
         }
 
-        val outputOptions = MediaStoreOutputOptions
-            .Builder(requireContext().contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-            .setContentValues(contentValues)
-            .build()
+        val outputOptions = MediaStoreOutputOptions.Builder(
+            requireContext().contentResolver,
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        ).setContentValues(contentValues).build()
 
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED
         ) {
             Toast.makeText(requireContext(), "Permission AUDIO manquante", Toast.LENGTH_SHORT).show()
             return
         }
+
         recording = videoCapture.output
             .prepareRecording(requireContext(), outputOptions)
             .withAudioEnabled()
@@ -150,21 +157,41 @@ class FragmentVideoCapture : Fragment() {
                     is VideoRecordEvent.Finalize -> {
                         binding.btnStopRecording.isEnabled = false
                         binding.btnStartRecording.isEnabled = true
-                        val msg = if (event.hasError()) {
-                            "Erreur d'enregistrement : ${event.error}"
-                        } else {
-                            "Vidéo enregistrée : ${event.outputResults.outputUri}"
-
-                        }
-                        Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
 
                         if (!event.hasError()) {
                             val videoUri = event.outputResults.outputUri
-                            val intent = Intent(Intent.ACTION_VIEW).apply {
-                                setDataAndType(videoUri, "video/*")
-                                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            Toast.makeText(requireContext(), "Vidéo enregistrée", Toast.LENGTH_SHORT).show()
+
+                            val videoFile = getFileFromUri(videoUri)
+                            if (videoFile != null) {
+                                lifecycleScope.launch {
+                                    withContext(Dispatchers.Main) {
+                                        binding.loadingOverlay.visibility = View.VISIBLE                                     }
+                                    processVideoFrames(videoFile)
+
+                                    withContext(Dispatchers.Main) {
+                                        binding.loadingOverlay.visibility = View.GONE
+
+                                        AlertDialog.Builder(requireContext())
+                                            .setTitle("Vidéo enregistrée")
+                                            .setMessage("Que souhaitez-vous faire ?")
+                                            .setPositiveButton("Voir la vidéo") { _, _ ->
+                                                val intent = Intent(Intent.ACTION_VIEW).apply {
+                                                    setDataAndType(videoUri, "video/mp4")
+                                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                                }
+                                                startActivity(intent)
+                                            }
+                                            .setNegativeButton("Voir les bounding boxes") { _, _ ->
+                                                findNavController().navigate(R.id.action_fragmentVideoCapture_to_imageGalleryFragment)
+                                            }
+                                            .setCancelable(false)
+                                            .show()
+                                    }
+                                }
                             }
-                            startActivity(intent)
+                        } else {
+                            Toast.makeText(requireContext(), "Erreur d'enregistrement : ${event.error}", Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -176,9 +203,89 @@ class FragmentVideoCapture : Fragment() {
         recording = null
     }
 
+    private fun getFileFromUri(uri: Uri): File? {
+        val cursor = requireContext().contentResolver.query(uri, null, null, null, null)
+        return if (cursor != null && cursor.moveToFirst()) {
+            val index = cursor.getColumnIndex(MediaStore.Video.Media.DATA)
+            val path = if (index != -1) cursor.getString(index) else null
+            cursor.close()
+            path?.let { File(it) }
+        } else {
+            null
+        }
+    }
+
+    private suspend fun processVideoFrames(videoFile: File) = withContext(Dispatchers.IO) {
+        val frames = extractFramesFromVideo(videoFile)
+        val detector = YoloBookDetector(requireContext())
+        val dir = File(requireContext().filesDir, "video_frames")
+        if (!dir.exists()) dir.mkdirs()
+
+        clearDirectory(dir)
+        frames.forEachIndexed { index, bitmap ->
+            val results = detector.detect(bitmap)
+            val annotated = drawBoundingBoxes(bitmap, results)
+            val frameFile = File(dir, "frame_${index}.jpg")
+            FileOutputStream(frameFile).use { fos ->
+                annotated.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+            }
+        }
+        Log.d("VideoProcessing", "Frames annotées sauvegardées dans ${dir.absolutePath}")
+    }
+
+    private fun extractFramesFromVideo(videoFile: File): List<Bitmap> {
+        val retriever = MediaMetadataRetriever()
+        val frameList = mutableListOf<Bitmap>()
+        try {
+            retriever.setDataSource(videoFile.absolutePath)
+            val duration =
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0L
+
+            val intervalMs = 500L // Extraire une frame toutes les 500ms
+            for (timeMs in 0 until duration step intervalMs) {
+                val frame = retriever.getFrameAtTime(timeMs * 1000, MediaMetadataRetriever.OPTION_CLOSEST)
+                frame?.let { frameList.add(it) }
+            }
+        } catch (e: Exception) {
+            Log.e("VideoProcessing", "Erreur extraction des frames : ${e.message}", e)
+        } finally {
+            retriever.release()
+        }
+        return frameList
+    }
+
+    private fun drawBoundingBoxes(bitmap: Bitmap, results: List<DetectionResult>): Bitmap {
+        val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+        val canvas = Canvas(mutableBitmap)
+        val paint = Paint().apply {
+            color = Color.RED
+            style = Paint.Style.STROKE
+            strokeWidth = 4f
+        }
+        val textPaint = Paint().apply {
+            color = Color.YELLOW
+            textSize = 36f
+            typeface = Typeface.DEFAULT_BOLD
+        }
+
+        for (result in results) {
+            canvas.drawRect(result.boundingBox, paint)
+            canvas.drawText(result.label.take(20), result.boundingBox.left, result.boundingBox.top - 10, textPaint)
+        }
+
+        return mutableBitmap
+    }
+
+
+    private fun clearDirectory(dir: File) {
+        if (dir.exists() && dir.isDirectory) {
+            dir.listFiles()?.forEach { it.delete() }
+        }
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
         cameraExecutor.shutdown()
     }
 }
+

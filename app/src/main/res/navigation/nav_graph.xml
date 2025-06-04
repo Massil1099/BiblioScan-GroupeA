@@ -240,7 +240,20 @@
         android:label="VideoCapture"
         tools:layout="@layout/fragment_video_capture">
 
+        <action
+            android:id="@+id/action_fragmentVideoCapture_to_imageGalleryFragment"
+            app:destination="@id/imageGalleryFragment" />
+
     </fragment>
 
+
+    <fragment
+        android:id="@+id/imageGalleryFragment"
+        android:name="com.example.biblioscan.fragments.ImageGalleryFragment"
+        android:label="Images Annotées"
+        tools:layout="@layout/fragment_image_gallery" >
+
+
+    </fragment>
 
 </navigation>
