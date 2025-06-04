@@ -57,6 +57,10 @@ class FragmentAccueil : Fragment() {
                     findNavController().navigate(R.id.action_accueil_to_connexion)
                 }
             }
+
+            binding.btnPrendreVideo.setOnClickListener {
+                findNavController().navigate(R.id.action_to_fragmentVideoCapture)
+            }
         }
     }
 

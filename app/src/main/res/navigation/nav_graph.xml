@@ -71,6 +71,15 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_to_fragmentVideoCapture"
+            app:destination="@id/fragmentVideoCapture"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
     </fragment>
 
     <!-- Fragment Caméra -->
@@ -221,5 +230,17 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
     </fragment>
+
+
+
+    <!-- Fragment de la capture video -->
+    <fragment
+        android:id="@+id/fragmentVideoCapture"
+        android:name="com.example.biblioscan.fragments.FragmentVideoCapture"
+        android:label="VideoCapture"
+        tools:layout="@layout/fragment_video_capture">
+
+    </fragment>
+
 
 </navigation>
