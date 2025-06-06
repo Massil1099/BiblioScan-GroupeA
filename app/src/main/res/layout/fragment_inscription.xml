@@ -1,59 +1,152 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:background="@drawable/background_gradient"
+    android:fillViewport="true"
     android:padding="24dp"
-    android:gravity="center"
-    android:background="@drawable/background_gradient">
+    android:importantForAccessibility="yes">
 
-    <EditText
-        android:id="@+id/usernameInput"
-        android:layout_width="350dp"
-        android:layout_height="60dp"
-        android:hint="  Nom d'utilisateur"
-        android:inputType="text"
-        android:background="@drawable/rounded_edittext_background"
-        android:backgroundTint="@color/white"
-        android:textColor="@color/black"
-        android:layout_marginBottom="16dp" />
-
-    <EditText
-        android:id="@+id/emailInput"
-        android:layout_width="350dp"
-        android:layout_height="60dp"
-        android:hint="  Adresse email"
-        android:inputType="textEmailAddress"
-        android:background="@drawable/rounded_edittext_background"
-        android:backgroundTint="@color/white"
-        android:textColor="@color/black"
-        android:layout_marginBottom="16dp" />
-
-    <EditText
-        android:id="@+id/passwordInput"
-        android:layout_width="350dp"
-        android:layout_height="60dp"
-        android:hint="  Mot de passe"
-        android:inputType="textPassword"
-        android:background="@drawable/rounded_edittext_background"
-        android:backgroundTint="@color/white"
-        android:textColor="@color/black"
-        android:layout_marginBottom="20dp" />
-
-    <Button
-        android:id="@+id/registerButton"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="S'INSCRIRE"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/teal_700"
-        android:layout_marginBottom="16dp" />
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
 
-    <Button
-        android:id="@+id/goBackButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="← RETOUR"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/teal_700" />
-</LinearLayout>
+        <!-- Logo -->
+        <ImageView
+            android:id="@+id/register_logo"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="32dp"
+            android:src="@drawable/ic_logo"
+            android:contentDescription="Logo de l'application BiblioScan" />
+
+        <!-- Username -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal"
+            android:background="@drawable/rounded_edittext_background"
+            android:padding="12dp"
+            android:importantForAccessibility="yes">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_user"
+                android:contentDescription="Icône utilisateur"
+                app:tint="?attr/colorOnBackground" />
+
+            <EditText
+                android:id="@+id/usernameInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Nom d'utilisateur"
+                android:background="@android:color/transparent"
+                android:textColor="?attr/colorOnBackground"
+                android:textColorHint="#888888"
+                android:textSize="16sp"
+                android:inputType="textPersonName"
+                android:labelFor="@+id/usernameInput"
+                android:contentDescription="Champ pour entrer le nom d'utilisateur" />
+        </LinearLayout>
+
+        <!-- Email -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal"
+            android:background="@drawable/rounded_edittext_background"
+            android:padding="12dp"
+            android:importantForAccessibility="yes">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_email"
+                android:contentDescription="Icône email"
+                app:tint="?attr/colorOnBackground" />
+
+            <EditText
+                android:id="@+id/emailInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Adresse email"
+                android:inputType="textEmailAddress"
+                android:background="@android:color/transparent"
+                android:textColor="?attr/colorOnBackground"
+                android:textColorHint="#888888"
+                android:textSize="16sp"
+                android:labelFor="@+id/emailInput"
+                android:contentDescription="Champ pour entrer l'adresse email" />
+        </LinearLayout>
+
+        <!-- Password -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:orientation="horizontal"
+            android:background="@drawable/rounded_edittext_background"
+            android:padding="12dp"
+            android:importantForAccessibility="yes">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_lock"
+                android:contentDescription="Icône mot de passe"
+                app:tint="?attr/colorOnBackground" />
+
+            <EditText
+                android:id="@+id/passwordInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Mot de passe"
+                android:inputType="textPassword"
+                android:background="@android:color/transparent"
+                android:textColor="?attr/colorOnBackground"
+                android:textColorHint="#888888"
+                android:textSize="16sp"
+                android:labelFor="@+id/passwordInput"
+                android:contentDescription="Champ pour entrer le mot de passe" />
+        </LinearLayout>
+
+        <!-- Buttons -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/registerButton"
+            style="@style/BiblioScan.Button.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="S'INSCRIRE"
+            app:icon="@drawable/ic_check"
+            app:iconPadding="8dp"
+            app:iconTint="@android:color/white"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="Valider l'inscription" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/goBackButton"
+            style="@style/BiblioScan.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="RETOUR"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/teal_700"
+            app:iconPadding="8dp"
+            app:iconTint="?attr/colorOnBackground"
+            android:contentDescription="Retour à l'écran précédent" />
+    </LinearLayout>
+</ScrollView>

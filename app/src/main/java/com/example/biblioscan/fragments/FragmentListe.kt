@@ -13,7 +13,7 @@ import com.example.biblioscan.DetectedBookAdapter
 import com.example.biblioscan.R
 import com.example.biblioscan.backend.searchBooksFromTitles
 import com.example.biblioscan.databinding.FragmentListeBinding
-import com.example.biblioscan.ImageProcessing.DetectionResult
+import com.example.biblioscan.imageProcessing.DetectionResult
 import com.example.biblioscan.data_app.AppDatabase
 import com.example.biblioscan.data_app.BookEntity
 import com.example.biblioscan.data_app.HistoryEntity

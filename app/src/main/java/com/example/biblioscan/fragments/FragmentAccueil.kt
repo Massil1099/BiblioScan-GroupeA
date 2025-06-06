@@ -1,9 +1,7 @@
 package com.example.biblioscan.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -31,32 +29,42 @@ class FragmentAccueil : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Accès au nom d'utilisateur via Flow
-        viewLifecycleOwner.lifecycleScope.launch {
-            val username = sessionManager.getUsername().first()  // récupère la valeur du Flow
+        lifecycleScope.launch {
+            val username = sessionManager.getUsername().first()
             val isGuest = username == "guest"
 
+            // Cacher favoris/historique si invité
             if (isGuest) {
                 binding.historyButton.visibility = View.GONE
                 binding.favoritesButton.visibility = View.GONE
             }
 
-            // Navigation
-            binding.cameraButton.setOnClickListener {
-                findNavController().navigate(R.id.action_accueil_to_camera)
+            setupNavigation()
+        }
+    }
+
+    private fun setupNavigation() {
+        binding.cameraButton.setOnClickListener {
+            findNavController().navigate(R.id.action_accueil_to_camera)
+        }
+
+        binding.historyButton.setOnClickListener {
+            findNavController().navigate(R.id.action_accueil_to_historique)
+        }
+
+        binding.favoritesButton.setOnClickListener {
+            findNavController().navigate(R.id.action_accueil_to_favoris)
+        }
+
+        binding.authButton.setOnClickListener {
+            lifecycleScope.launch {
+                sessionManager.clearUsername()
+                findNavController().navigate(R.id.action_accueil_to_connexion)
             }
-            binding.historyButton.setOnClickListener {
-                findNavController().navigate(R.id.action_accueil_to_historique)
-            }
-            binding.favoritesButton.setOnClickListener {
-                findNavController().navigate(R.id.action_accueil_to_favoris)
-            }
-            binding.authButton.setOnClickListener {
-                lifecycleScope.launch {
-                    sessionManager.clearUsername()
-                    findNavController().navigate(R.id.action_accueil_to_connexion)
-                }
-            }
+        }
+
+        binding.settingsButton.setOnClickListener {
+            findNavController().navigate(R.id.action_accueil_to_parametres)
         }
     }
 

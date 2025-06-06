@@ -1,9 +1,9 @@
 <resources>
     <color name="teal_700">#00796B</color>
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
-    <color name="textPrimary">#000000</color>
-    <color name="background">#F5F5F5</color>
+    <color name="white">#000000</color> <!-- textes sur fond sombre -->
+    <color name="black">#FFFFFF</color>
+    <color name="textPrimary">#FFFFFF</color>
+    <color name="background">#121212</color>
 
     <!-- Compatibilité Material -->
     <color name="colorPrimary">@color/teal_700</color>

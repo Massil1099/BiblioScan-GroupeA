@@ -1,16 +1,16 @@
 package com.example.biblioscan.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.biblioscan.R
 import com.example.biblioscan.DetectedBookAdapter
+import com.example.biblioscan.R
 import com.example.biblioscan.data_app.AppDatabase
 import com.example.biblioscan.data_app.toBook
 import com.example.biblioscan.databinding.FragmentHistoriqueBinding
@@ -24,6 +24,7 @@ class FragmentHistorique : Fragment() {
     private val binding get() = _binding!!
     private lateinit var adapter: DetectedBookAdapter
     private lateinit var sessionManager: UserSessionManager
+    private var allBooks = listOf<com.example.biblioscan.Book>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,8 +38,6 @@ class FragmentHistorique : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         sessionManager = UserSessionManager(requireContext())
-
-        // Initialiser l’adaptateur
         adapter = DetectedBookAdapter { book ->
             val bundle = Bundle().apply {
                 putParcelable("book", book)
@@ -53,39 +52,49 @@ class FragmentHistorique : Fragment() {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        // Charger l’historique
-        loadHistory()
-
-
         binding.clearHistoryButton.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch {
+            lifecycleScope.launch {
                 val username = sessionManager.getUsername().first()
                 if (username != null && username != "guest") {
-                    val dao = AppDatabase.getDatabase(requireContext()).biblioScanDao()
-                    dao.clearHistory(username)
+                    AppDatabase.getDatabase(requireContext()).biblioScanDao().clearHistory(username)
                     loadHistory()
                     Toast.makeText(requireContext(), "Historique vidé", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
+        binding.searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                filterBooks(s.toString())
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        loadHistory()
     }
 
     private fun loadHistory() {
         val dao = AppDatabase.getDatabase(requireContext()).biblioScanDao()
 
         viewLifecycleOwner.lifecycleScope.launch {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.historyRecyclerView.visibility = View.GONE
+            binding.emptyContainer.visibility = View.GONE
+
             val username = sessionManager.getUsername().first()
 
             if (username == null || username == "guest") {
                 Toast.makeText(requireContext(), "Fonctionnalité réservée aux utilisateurs connectés", Toast.LENGTH_SHORT).show()
                 binding.emptyContainer.visibility = View.VISIBLE
-                binding.historyRecyclerView.visibility = View.GONE
+                binding.progressBar.visibility = View.GONE
                 return@launch
             }
 
             val historyEntities = dao.getHistoryForUser(username)
             val historyBooks = historyEntities.map { it.toBook() }
+
+            binding.progressBar.visibility = View.GONE
 
             if (historyBooks.isEmpty()) {
                 binding.emptyContainer.visibility = View.VISIBLE
@@ -96,6 +105,19 @@ class FragmentHistorique : Fragment() {
                 adapter.submitList(historyBooks)
             }
         }
+    }
+
+
+    private fun filterBooks(query: String) {
+        val filtered = if (query.isEmpty()) {
+            allBooks
+        } else {
+            allBooks.filter {
+                it.title.contains(query, ignoreCase = true) ||
+                        it.author.contains(query, ignoreCase = true)
+            }
+        }
+        adapter.submitList(filtered)
     }
 
     override fun onDestroyView() {

@@ -6,10 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.biblioscan.ImageProcessing.DetectionResult
+import com.example.biblioscan.R
 import com.example.biblioscan.databinding.FragmentWatchBooksDetectionBinding
+import com.example.biblioscan.imageProcessing.DetectionResult
 
 class FragmentWatchBooksDetection : Fragment() {
 
@@ -38,49 +40,55 @@ class FragmentWatchBooksDetection : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (!imagePath.isNullOrEmpty()) {
-            val bitmap = BitmapFactory.decodeFile(imagePath)
-            if (bitmap != null) {
-                val bitmapWithBoxes = drawBoundingBoxes(bitmap, detectionResults)
-                binding.imageView.setImageBitmap(bitmapWithBoxes)
-
-                // ➕ Nombre de livres détectés
-                binding.detectionInfo.text = "📚 ${detectionResults.size} livre(s) détecté(s)"
-
-                // ➕ Ajouter une étiquette pour chaque résultat
-                detectionResults.forEachIndexed { index, result ->
-                    val label = when (result.status) {
-                        "no_text" -> "❗ Aucun texte détecté"
-                        "ignored" -> "⚠️ Échec de l'OCR"
-                        else -> result.label.take(100)
-                    }
-
-                    val textView = TextView(requireContext()).apply {
-                        text = "Livre ${index + 1} : $label"
-                        setTextColor(
-                            when (result.status) {
-                                "no_text" -> Color.YELLOW
-                                "ignored" -> Color.RED
-                                else -> Color.WHITE
-                            }
-                        )
-                        textSize = 14f
-                        setPadding(0, 4, 0, 4)
-                    }
-                    binding.labelsContainer.addView(textView)
-                }
-            } else {
-                binding.imageView.setImageResource(android.R.color.darker_gray)
-                binding.detectionInfo.text = "Impossible de charger l’image."
-            }
-        } else {
-            binding.imageView.setImageResource(android.R.color.darker_gray)
-            binding.detectionInfo.text = "Aucune image fournie."
-        }
-
         binding.backButton.setOnClickListener {
             findNavController().popBackStack()
         }
+
+        if (imagePath.isNullOrEmpty()) {
+            showError("Aucune image fournie.")
+            return
+        }
+
+        val bitmap = BitmapFactory.decodeFile(imagePath)
+        if (bitmap == null) {
+            showError("Impossible de charger l’image.")
+            return
+        }
+
+        // Affichage de l’image avec les cadres
+        val bitmapWithBoxes = drawBoundingBoxes(bitmap, detectionResults)
+        binding.imageView.setImageBitmap(bitmapWithBoxes)
+
+        // Affichage du nombre de détections
+        binding.detectionInfo.text = "📚 ${detectionResults.size} livre(s) détecté(s)"
+
+        // Affichage des étiquettes
+        detectionResults.forEachIndexed { index, result ->
+            val label = when (result.status) {
+                "no_text" -> "❗ Aucun texte détecté"
+                "ignored" -> "⚠️ Échec de l'OCR"
+                else -> result.label.take(100)
+            }
+
+            val labelColor = when (result.status) {
+                "no_text" -> ContextCompat.getColor(requireContext(), android.R.color.holo_orange_light)
+                "ignored" -> ContextCompat.getColor(requireContext(), android.R.color.holo_red_light)
+                else -> ContextCompat.getColor(requireContext(), android.R.color.white)
+            }
+
+            val textView = TextView(requireContext()).apply {
+                text = "Livre ${index + 1} : $label"
+                setTextColor(labelColor)
+                textSize = 14f
+                setPadding(0, 4, 0, 4)
+            }
+            binding.labelsContainer.addView(textView)
+        }
+    }
+
+    private fun showError(message: String) {
+        binding.imageView.setImageResource(android.R.color.darker_gray)
+        binding.detectionInfo.text = message
     }
 
     private fun drawBoundingBoxes(bitmap: Bitmap, results: List<DetectionResult>): Bitmap {
@@ -100,12 +108,12 @@ class FragmentWatchBooksDetection : Fragment() {
 
         for (result in results) {
             canvas.drawRect(result.boundingBox, paint)
-            val text = when (result.status) {
+            val shortLabel = when (result.status) {
                 "no_text" -> "❓"
                 "ignored" -> "❌"
                 else -> result.label.take(20)
             }
-            canvas.drawText(text, result.boundingBox.left, result.boundingBox.top - 10, textPaint)
+            canvas.drawText(shortLabel, result.boundingBox.left, result.boundingBox.top - 10, textPaint)
         }
 
         return mutableBitmap

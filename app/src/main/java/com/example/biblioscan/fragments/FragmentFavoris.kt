@@ -67,7 +67,7 @@ class FragmentFavoris : Fragment() {
             val username = sessionManager.getUsername().first()
             if (username == null || username == "guest") {
                 Toast.makeText(requireContext(), "Mode invité : favoris non disponibles", Toast.LENGTH_SHORT).show()
-                binding.emptyContainer.visibility = View.VISIBLE
+                binding.emptyFavoritesContainer.visibility = View.VISIBLE
                 binding.favoritesRecyclerView.visibility = View.GONE
                 return@launch            }
 
@@ -76,10 +76,10 @@ class FragmentFavoris : Fragment() {
             val favoriteBooks = favoriteBooksEntity.map { it.toBook() }
 
             if (favoriteBooks.isEmpty()) {
-                binding.emptyContainer.visibility = View.VISIBLE
+                binding.emptyFavoritesContainer.visibility = View.VISIBLE
                 binding.favoritesRecyclerView.visibility = View.GONE
             } else {
-                binding.emptyContainer.visibility = View.GONE
+                binding.emptyFavoritesContainer.visibility = View.GONE
                 binding.favoritesRecyclerView.visibility = View.VISIBLE
                 adapter.submitList(favoriteBooks)
             }

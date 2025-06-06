@@ -1,0 +1,14 @@
+<!-- res/values/attrs.xml -->
+<resources>
+
+    <!-- Attributs personnalisés pour AccueilCardButton -->
+    <declare-styleable name="AccueilCardButton">
+        <attr name="iconSrc" format="reference" />
+        <attr name="labelText" format="string" />
+    </declare-styleable>
+
+    <!-- Attributs de thème utilisés dans les layouts -->
+    <attr name="colorBackground" format="reference|color" />
+    <attr name="colorOnBackground" format="reference|color" />
+
+</resources>

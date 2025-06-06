@@ -1,35 +1,58 @@
-<!-- res/layout/fragment_camera.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/cardview_dark_background"
+    android:background="?attr/colorBackground"
     android:padding="16dp"
-    android:gravity="center">
+    android:gravity="center"
+    android:baselineAligned="false"
+    android:importantForAccessibility="yes">
 
-    <androidx.camera.view.PreviewView
-        android:id="@+id/cameraPreview"
+    <!-- Aperçu caméra plein écran avec bords arrondis -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@drawable/rounded_edittext_background" />
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        android:importantForAccessibility="no">
 
+        <androidx.camera.view.PreviewView
+            android:id="@+id/cameraPreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="Aperçu de la caméra en direct"
+            android:importantForAccessibility="yes"
+            android:focusable="true" />
+    </androidx.cardview.widget.CardView>
 
+    <!-- Bouton de capture stylisé -->
     <ImageButton
         android:id="@+id/capture_button"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/stop"
-        android:scaleType="fitCenter"
-        android:contentDescription="@string/capture_button" />
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/btn_capture_circle"
+        android:scaleType="centerInside"
+        android:contentDescription="Capturer une photo"
+        android:importantForAccessibility="yes"
+        android:focusable="true" />
 
+    <!-- Bouton retour stylisé -->
     <Button
         android:id="@+id/back_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/teal_700"
-        android:text="retour"
-        android:textColor="@android:color/white" />
+        android:layout_gravity="center"
+        android:layout_marginTop="4dp"
+        android:backgroundTint="?attr/colorPrimary"
+        android:text="Retour"
+        android:textAllCaps="false"
+        android:textColor="?attr/colorOnPrimary"
+        android:importantForAccessibility="yes"
+        android:focusable="true"
+        android:contentDescription="Bouton retour" />
+
 </LinearLayout>

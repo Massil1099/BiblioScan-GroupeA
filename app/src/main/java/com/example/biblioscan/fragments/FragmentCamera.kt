@@ -13,11 +13,11 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.example.biblioscan.ImageProcessing.DetectionResult
-import com.example.biblioscan.ImageProcessing.YoloBookDetector
-import com.example.biblioscan.ImageProcessing.extractTextFromBoundingBoxes
 import com.example.biblioscan.R
 import com.example.biblioscan.databinding.FragmentCameraBinding
+import com.example.biblioscan.imageProcessing.DetectionResult
+import com.example.biblioscan.imageProcessing.YoloBookDetector
+import com.example.biblioscan.imageProcessing.extractTextFromBoundingBoxes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,10 +35,10 @@ class FragmentCamera : Fragment() {
     private lateinit var imageCapture: ImageCapture
     private lateinit var cameraExecutor: ExecutorService
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) startCamera()
-            else Log.e("CameraXApp", "Permission non accordée")
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) startCamera()
+            else Log.e("CameraXApp", "Permission caméra refusée.")
         }
 
     override fun onCreateView(
@@ -53,23 +53,27 @@ class FragmentCamera : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) ==
-            PackageManager.PERMISSION_GRANTED) {
-            startCamera()
-        } else {
-            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
-        }
-
+        checkCameraPermission()
         binding.captureButton.setOnClickListener { takePhoto() }
         binding.backButton.setOnClickListener {
             findNavController().navigate(R.id.action_camera_to_accueil)
         }
     }
 
+    private fun checkCameraPermission() {
+        val hasPermission = ContextCompat.checkSelfPermission(
+            requireContext(), Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (hasPermission) startCamera()
+        else permissionLauncher.launch(Manifest.permission.CAMERA)
+    }
+
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
+
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(binding.cameraPreview.surfaceProvider)
             }
@@ -78,53 +82,60 @@ class FragmentCamera : Fragment() {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .build()
 
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-            cameraProvider.unbindAll()
-            cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+            try {
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    viewLifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA,
+                    preview, imageCapture
+                )
+            } catch (e: Exception) {
+                Log.e("CameraXApp", "Erreur lors de l'initialisation de la caméra", e)
+            }
+
         }, ContextCompat.getMainExecutor(requireContext()))
     }
 
     private fun takePhoto() {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val dir = File(requireContext().filesDir, "images")
-        if (!dir.exists()) dir.mkdirs()
-
-        val imageFile = File(dir, "original_$timeStamp.jpg")
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
+        val imageDir = File(requireContext().filesDir, "images").apply { mkdirs() }
+        val photoFile = File(imageDir, "original_$timeStamp.jpg")
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
         imageCapture.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(requireContext()),
             object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val savedPath = imageFile.absolutePath
+                override fun onImageSaved(results: ImageCapture.OutputFileResults) {
                     lifecycleScope.launch {
                         val bitmap = withContext(Dispatchers.IO) {
-                            BitmapFactory.decodeFile(savedPath)
+                            BitmapFactory.decodeFile(photoFile.absolutePath)
                         }
 
                         val detector = YoloBookDetector(requireContext())
-                        val results = detector.detect(bitmap)
+                        val detections = detector.detect(bitmap)
 
-                        if (results.isEmpty()) {
-                            Log.d("CameraXApp", "Aucun livre détecté.")
+                        if (detections.isEmpty()) {
+                            Log.d("CameraXApp", "Aucun livre détecté")
                             return@launch
                         }
 
-                        val detectionResults = extractTextFromBoundingBoxes(bitmap, results)
-                        val annotatedBitmap = drawBoundingBoxes(bitmap, detectionResults)
+                        val detectionResults = extractTextFromBoundingBoxes(bitmap, detections)
+                        val annotated = drawBoundingBoxes(bitmap, detectionResults)
 
-                        val processedFile = File(dir, "processed_$timeStamp.jpg")
+                        val processedFile = File(imageDir, "processed_$timeStamp.jpg")
                         withContext(Dispatchers.IO) {
-                            FileOutputStream(processedFile).use { fos ->
-                                annotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+                            FileOutputStream(processedFile).use { out ->
+                                annotated.compress(Bitmap.CompressFormat.JPEG, 100, out)
                             }
                         }
 
                         val bundle = Bundle().apply {
                             putString("capturedImagePath", processedFile.absolutePath)
                             putParcelableArrayList("detectionResults", ArrayList(detectionResults))
-                            putStringArrayList("detectedTexts", ArrayList(detectionResults.map { it.label }))
+                            putStringArrayList(
+                                "detectedTexts",
+                                ArrayList(detectionResults.map { it.label })
+                            )
                         }
 
                         findNavController().navigate(R.id.action_camera_to_liste, bundle)
@@ -141,21 +152,25 @@ class FragmentCamera : Fragment() {
     private fun drawBoundingBoxes(bitmap: Bitmap, results: List<DetectionResult>): Bitmap {
         val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(mutableBitmap)
-        val paint = Paint().apply {
+
+        val boxPaint = Paint().apply {
             color = Color.RED
             style = Paint.Style.STROKE
-            strokeWidth = 5f
+            strokeWidth = 4f
         }
+
         val textPaint = Paint().apply {
             color = Color.RED
-            textSize = 40f
+            textSize = 36f
             isAntiAlias = true
             typeface = Typeface.DEFAULT_BOLD
         }
+
         for (result in results) {
-            canvas.drawRect(result.boundingBox, paint)
-            canvas.drawText(result.label.take(20), result.boundingBox.left, result.boundingBox.top - 10, textPaint)
+            canvas.drawRect(result.boundingBox, boxPaint)
+            canvas.drawText(result.label.take(20), result.boundingBox.left, result.boundingBox.top - 8, textPaint)
         }
+
         return mutableBitmap
     }
 

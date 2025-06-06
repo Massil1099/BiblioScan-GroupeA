@@ -5,10 +5,9 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-// Liste des entités et version de la base de données
 @Database(
     entities = [UserEntity::class, BookEntity::class, FavoriteEntity::class, HistoryEntity::class],
-    version = 1
+    version = 2
 )
 abstract class AppDatabase : RoomDatabase() {
 
@@ -24,7 +23,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "biblioscan_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration() // Évite crash migration version
+                    .build()
                 INSTANCE = instance
                 instance
             }
