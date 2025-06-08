@@ -236,7 +236,7 @@
     <!-- Fragment de la capture video -->
     <fragment
         android:id="@+id/fragmentVideoCapture"
-        android:name="com.example.biblioscan.fragments.FragmentVideoCapture"
+        android:name="com.example.biblioscan.special_video.FragmentVideoCapture"
         android:label="VideoCapture"
         tools:layout="@layout/fragment_video_capture">
 
@@ -252,7 +252,7 @@
     <!-- ImageGalleryFragment -->
     <fragment
         android:id="@+id/imageGalleryFragment"
-        android:name="com.example.biblioscan.fragments.ImageGalleryFragment"
+        android:name="com.example.biblioscan.special_video.ImageGalleryFragment"
         android:label="Images Annotées"
         tools:layout="@layout/fragment_image_gallery" >
         <action
@@ -264,7 +264,7 @@
     <!-- Fragment video: la liste des livres detectes -->
     <fragment
         android:id="@+id/fragmentListeVideo"
-        android:name="com.example.biblioscan.fragments.FragmentListeVideo"
+        android:name="com.example.biblioscan.special_video.FragmentListeVideo"
         android:label="Livres détectés depuis la vidéo"
         tools:layout="@layout/fragment_liste_video">
         <argument
@@ -289,7 +289,7 @@
 
     <fragment
         android:id="@+id/fragmentResultatVideo"
-        android:name="com.example.biblioscan.fragments.FragmentResultatVideo"
+        android:name="com.example.biblioscan.special_video.FragmentResultatVideo"
         android:label="Détails Livre"
         tools:layout="@layout/fragment_resultat_video">
 
@@ -297,7 +297,7 @@
 
     <fragment
         android:id="@+id/imageDetailFragment"
-        android:name="com.example.biblioscan.fragments.ImageDetailFragment"
+        android:name="com.example.biblioscan.special_video.ImageDetailFragment"
         android:label="Détail image"
         tools:layout="@layout/fragment_image_detail">
         <argument

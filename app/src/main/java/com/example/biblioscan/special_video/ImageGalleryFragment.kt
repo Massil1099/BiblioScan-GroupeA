@@ -1,4 +1,4 @@
-package com.example.biblioscan.fragments
+package com.example.biblioscan.special_video
 
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.biblioscan.ImageProcessing.DetectionResult
 import com.example.biblioscan.R

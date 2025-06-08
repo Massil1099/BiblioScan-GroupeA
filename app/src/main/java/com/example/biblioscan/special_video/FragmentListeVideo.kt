@@ -1,4 +1,4 @@
-package com.example.biblioscan.fragments
+package com.example.biblioscan.special_video
 
 import android.os.Bundle
 import android.util.Log
@@ -81,11 +81,14 @@ class FragmentListeVideo : Fragment() {
             binding.detectedBooksRecyclerView.visibility = View.GONE
             return
         }
+
         Log.d("FragmentListeVideo", "Detected texts for search: $detectedTextsFromVideo")
 
         lifecycleScope.launch {
+            val alreadyProcessed = mutableMapOf<String, Book>()
+
             try {
-                val books = searchBooksFromTitles(detectedTextsFromVideo)
+                val books = searchBooksAvoidingDuplicates(detectedTextsFromVideo, alreadyProcessed)
                 if (books.isEmpty()) {
                     binding.emptyContainer.visibility = View.VISIBLE
                     binding.detectedBooksRecyclerView.visibility = View.GONE

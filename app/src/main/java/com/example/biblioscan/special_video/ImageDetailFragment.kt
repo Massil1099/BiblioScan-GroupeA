@@ -1,4 +1,4 @@
-package com.example.biblioscan.fragments
+package com.example.biblioscan.special_video
 
 import android.graphics.BitmapFactory
 import android.os.Bundle
