@@ -243,17 +243,67 @@
         <action
             android:id="@+id/action_fragmentVideoCapture_to_imageGalleryFragment"
             app:destination="@id/imageGalleryFragment" />
+        <action
+            android:id="@+id/action_fragmentVideoCapture_to_fragmentListeVideo"
+            app:destination="@id/fragmentListeVideo" />
 
     </fragment>
 
-
+    <!-- ImageGalleryFragment -->
     <fragment
         android:id="@+id/imageGalleryFragment"
         android:name="com.example.biblioscan.fragments.ImageGalleryFragment"
         android:label="Images Annotées"
         tools:layout="@layout/fragment_image_gallery" >
-
+        <action
+            android:id="@+id/action_imageGalleryFragment_to_imageDetailFragment"
+            app:destination="@id/imageDetailFragment" />
 
     </fragment>
 
+    <!-- Fragment video: la liste des livres detectes -->
+    <fragment
+        android:id="@+id/fragmentListeVideo"
+        android:name="com.example.biblioscan.fragments.FragmentListeVideo"
+        android:label="Livres détectés depuis la vidéo"
+        tools:layout="@layout/fragment_liste_video">
+        <argument
+            android:name="detectedTextsFromVideo"
+            app:argType="string[]" />
+
+
+        <action
+            android:id="@+id/action_listeVideo_to_resultat"
+            app:destination="@id/fragmentResultatVideo" />
+
+        <action
+            android:id="@+id/action_listeVideo_to_videoCapture"
+            app:destination="@id/fragmentVideoCapture" />
+
+        <action
+            android:id="@+id/action_listeVideo_to_imageGalleryFragment"
+            app:destination="@id/imageGalleryFragment" />
+
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/fragmentResultatVideo"
+        android:name="com.example.biblioscan.fragments.FragmentResultatVideo"
+        android:label="Détails Livre"
+        tools:layout="@layout/fragment_resultat_video">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/imageDetailFragment"
+        android:name="com.example.biblioscan.fragments.ImageDetailFragment"
+        android:label="Détail image"
+        tools:layout="@layout/fragment_image_detail">
+        <argument
+            android:name="imagePath"
+            app:argType="string" />
+
+
+    </fragment>
 </navigation>

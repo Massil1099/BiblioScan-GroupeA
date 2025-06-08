@@ -16,7 +16,8 @@ data class DetectionResult(
     val boundingBox: RectF,
     val confidence: Float,
     var label: String = "",
-    var status: String = "ok"
+    var status: String = "ok",
+    var frameIndex: Int? = null // Rendons-le nullable pour les photos
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         RectF(
@@ -27,7 +28,9 @@ data class DetectionResult(
         ),
         parcel.readFloat(),
         parcel.readString() ?: "",
-        parcel.readString() ?: "ok"
+        parcel.readString() ?: "ok",
+        parcel.readInt().takeIf { it != -1 } // Gestion nullable
+
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -38,6 +41,7 @@ data class DetectionResult(
         parcel.writeFloat(confidence)
         parcel.writeString(label)
         parcel.writeString(status)
+        parcel.writeInt(frameIndex ?: -1) // -1 pour null
     }
 
 

@@ -36,10 +36,10 @@ import android.graphics.Typeface
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.biblioscan.ImageProcessing.DetectionResult
 import com.example.biblioscan.ImageProcessing.YoloBookDetector
+import com.example.biblioscan.ImageProcessing.extractTextFromBoundingBoxes
 import com.example.biblioscan.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,6 +55,7 @@ class FragmentVideoCapture : Fragment() {
     private var videoCapture: VideoCapture<Recorder>? = null
     private var recording: Recording? = null
 
+    private val allResultsWithText = mutableListOf<DetectionResult>()
     private val cameraExecutor by lazy { Executors.newSingleThreadExecutor() }
 
     private val permissionLauncher = registerForActivityResult(
@@ -68,10 +69,7 @@ class FragmentVideoCapture : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentVideoCaptureBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -95,7 +93,6 @@ class FragmentVideoCapture : Fragment() {
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
 
@@ -108,11 +105,15 @@ class FragmentVideoCapture : Fragment() {
                 .build()
 
             videoCapture = VideoCapture.withOutput(recorder)
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             try {
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(viewLifecycleOwner, cameraSelector, preview, videoCapture)
+                cameraProvider.bindToLifecycle(
+                    viewLifecycleOwner,
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    preview,
+                    videoCapture
+                )
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Erreur caméra : ${e.message}", Toast.LENGTH_SHORT).show()
             }
@@ -162,29 +163,37 @@ class FragmentVideoCapture : Fragment() {
                             val videoUri = event.outputResults.outputUri
                             Toast.makeText(requireContext(), "Vidéo enregistrée", Toast.LENGTH_SHORT).show()
 
-                            val videoFile = getFileFromUri(videoUri)
+                            val videoFile = uriToFile(videoUri)
                             if (videoFile != null) {
                                 lifecycleScope.launch {
                                     withContext(Dispatchers.Main) {
-                                        binding.loadingOverlay.visibility = View.VISIBLE                                     }
+                                        binding.loadingOverlay.visibility = View.VISIBLE
+                                    }
+
                                     processVideoFrames(videoFile)
 
                                     withContext(Dispatchers.Main) {
                                         binding.loadingOverlay.visibility = View.GONE
-
                                         AlertDialog.Builder(requireContext())
                                             .setTitle("Vidéo enregistrée")
                                             .setMessage("Que souhaitez-vous faire ?")
                                             .setPositiveButton("Voir la vidéo") { _, _ ->
-                                                val intent = Intent(Intent.ACTION_VIEW).apply {
+                                                startActivity(Intent(Intent.ACTION_VIEW).apply {
                                                     setDataAndType(videoUri, "video/mp4")
                                                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                                }
-                                                startActivity(intent)
+                                                })
                                             }
                                             .setNegativeButton("Voir les bounding boxes") { _, _ ->
                                                 findNavController().navigate(R.id.action_fragmentVideoCapture_to_imageGalleryFragment)
                                             }
+                                            .setNeutralButton("Voir la liste des livres") { _, _ ->
+                                                val bundle = Bundle().apply {
+                                                    putParcelableArrayList("detectionResultsFromVideo", ArrayList(allResultsWithText))
+                                                    putStringArray("detectedTextsFromVideo", allResultsWithText.map { it.label }.toTypedArray())
+                                                }
+                                                findNavController().navigate(R.id.action_fragmentVideoCapture_to_fragmentListeVideo, bundle)
+                                            }
+
                                             .setCancelable(false)
                                             .show()
                                     }
@@ -203,51 +212,60 @@ class FragmentVideoCapture : Fragment() {
         recording = null
     }
 
-    private fun getFileFromUri(uri: Uri): File? {
-        val cursor = requireContext().contentResolver.query(uri, null, null, null, null)
-        return if (cursor != null && cursor.moveToFirst()) {
-            val index = cursor.getColumnIndex(MediaStore.Video.Media.DATA)
-            val path = if (index != -1) cursor.getString(index) else null
-            cursor.close()
-            path?.let { File(it) }
-        } else {
+    private fun uriToFile(uri: Uri): File? {
+        return try {
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            val file = File(requireContext().cacheDir, "temp_video_${System.currentTimeMillis()}.mp4")
+            inputStream?.use { input ->
+                FileOutputStream(file).use { output -> input.copyTo(output) }
+            }
+            file
+        } catch (e: Exception) {
+            Log.e("uriToFile", "Erreur conversion Uri -> File : ${e.message}")
             null
         }
     }
 
+
     private suspend fun processVideoFrames(videoFile: File) = withContext(Dispatchers.IO) {
         val frames = extractFramesFromVideo(videoFile)
         val detector = YoloBookDetector(requireContext())
-        val dir = File(requireContext().filesDir, "video_frames")
-        if (!dir.exists()) dir.mkdirs()
+        val dir = File(requireContext().filesDir, "video_frames").apply { mkdirs() }
 
         clearDirectory(dir)
+        allResultsWithText.clear() // Nettoyer les résultats précédents
+
         frames.forEachIndexed { index, bitmap ->
             val results = detector.detect(bitmap)
-            val annotated = drawBoundingBoxes(bitmap, results)
-            val frameFile = File(dir, "frame_${index}.jpg")
+            val resultsWithText = extractTextFromBoundingBoxes(bitmap, results)
+
+            // Ajouter les résultats pour cette frame
+            allResultsWithText.addAll(resultsWithText)
+
+            val annotated = drawBoundingBoxes(bitmap, resultsWithText)
+            val frameFile = File(dir, "frame_$index.jpg")
             FileOutputStream(frameFile).use { fos ->
                 annotated.compress(Bitmap.CompressFormat.JPEG, 100, fos)
             }
-        }
-        Log.d("VideoProcessing", "Frames annotées sauvegardées dans ${dir.absolutePath}")
-    }
 
+            Log.d("VideoProcessing", "Frame $index traitée avec ${resultsWithText.size} détections.")
+        }
+
+        Log.d("VideoProcessing", "Traitement terminé. ${frames.size} frames traitées avec ${allResultsWithText.size} détections totales.")
+    }
     private fun extractFramesFromVideo(videoFile: File): List<Bitmap> {
         val retriever = MediaMetadataRetriever()
         val frameList = mutableListOf<Bitmap>()
         try {
             retriever.setDataSource(videoFile.absolutePath)
-            val duration =
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0L
-
-            val intervalMs = 500L // Extraire une frame toutes les 500ms
-            for (timeMs in 0 until duration step intervalMs) {
-                val frame = retriever.getFrameAtTime(timeMs * 1000, MediaMetadataRetriever.OPTION_CLOSEST)
-                frame?.let { frameList.add(it) }
+            val durationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0L
+            for (timeMs in 0 until durationMs step 3000L) {
+                retriever.getFrameAtTime(timeMs * 1000, MediaMetadataRetriever.OPTION_CLOSEST)?.let {
+                    frameList.add(it)
+                }
             }
         } catch (e: Exception) {
-            Log.e("VideoProcessing", "Erreur extraction des frames : ${e.message}", e)
+            Log.e("VideoProcessing", "Erreur extraction frames : ${e.message}")
         } finally {
             retriever.release()
         }
@@ -268,24 +286,23 @@ class FragmentVideoCapture : Fragment() {
             typeface = Typeface.DEFAULT_BOLD
         }
 
-        for (result in results) {
-            canvas.drawRect(result.boundingBox, paint)
-            canvas.drawText(result.label.take(20), result.boundingBox.left, result.boundingBox.top - 10, textPaint)
+        results.forEach {
+            canvas.drawRect(it.boundingBox, paint)
+            canvas.drawText(it.label.take(20), it.boundingBox.left, it.boundingBox.top - 10, textPaint)
         }
 
         return mutableBitmap
     }
 
-
     private fun clearDirectory(dir: File) {
-        if (dir.exists() && dir.isDirectory) {
-            dir.listFiles()?.forEach { it.delete() }
-        }
+        dir.listFiles()?.forEach { it.delete() }
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
         cameraExecutor.shutdown()
     }
 }
+
 
