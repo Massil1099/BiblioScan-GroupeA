@@ -68,6 +68,16 @@
         android:layout_marginTop="32dp"
         android:layout_marginBottom="8dp"
         android:contentDescription="Chargement de l’historique en cours" />
+    <Spinner
+        android:id="@+id/filter_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="?attr/colorPrimary"
+        android:spinnerMode="dropdown"
+        android:popupBackground="@color/white"
+        android:contentDescription="Filtrer les livres"
+        android:importantForAccessibility="yes" />
 
     <!-- Liste -->
     <androidx.recyclerview.widget.RecyclerView

@@ -4,9 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
     android:background="@drawable/background_gradient"
-    android:importantForAccessibility="yes">
+    android:padding="16dp">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
@@ -16,79 +15,66 @@
         android:background="?attr/colorPrimary"
         app:title="Favoris"
         app:titleTextColor="?attr/colorOnPrimary"
-        android:elevation="4dp"
-        android:contentDescription="Barre de navigation Favoris" />
+        android:elevation="4dp" />
 
-    <!-- Message si liste vide -->
-    <LinearLayout
-        android:id="@+id/empty_favorites_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="32dp"
-        android:visibility="gone"
-        android:importantForAccessibility="yes"
-        android:focusable="true">
-
-        <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginBottom="16dp"
-            android:src="@drawable/ic_empty"
-            android:alpha="0.8"
-            app:tint="?attr/colorOnBackground"
-            android:contentDescription="Illustration aucun favori" />
-
-        <TextView
-            android:id="@+id/empty_favorites_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Aucun favori enregistré."
-            android:textColor="?attr/colorOnBackground"
-            android:textSize="16sp"
-            android:textAlignment="center"
-            android:importantForAccessibility="yes"
-            android:focusable="true"
-            android:contentDescription="Message indiquant qu'aucun favori n'est enregistré" />
-    </LinearLayout>
-
-    <!-- Liste des favoris -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/favoritesRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:clipToPadding="false"
-        android:contentDescription="Liste des livres favoris"
-        android:importantForAccessibility="yes" />
-
-    <!-- Zone des boutons -->
+    <!-- Spinners -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="8dp"
-        android:gravity="center"
-        android:importantForAccessibility="yes">
+        android:gravity="center">
 
-        <Button
-            android:id="@+id/back_button"
+        <Spinner
+            android:id="@+id/filterSpinner"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Retour"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="?attr/colorPrimary"
+            android:spinnerMode="dropdown"
+            android:popupBackground="@color/white"
+            android:contentDescription="Filtrer les livres" />
+
+        <Spinner
+            android:id="@+id/sortSpinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="?attr/colorPrimary"
+            android:spinnerMode="dropdown"
+            android:popupBackground="@color/white"
+            android:contentDescription="Trier les livres" />
+    </LinearLayout>
+
+    <!-- RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/favorisRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:padding="8dp" />
+
+    <!-- Boutons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:weightSum="2"
+        android:gravity="center_vertical">
+
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="RETOUR"
             android:textColor="?attr/colorOnPrimary"
             android:backgroundTint="?attr/colorPrimary"
-            android:contentDescription="Bouton retour vers l'écran précédent"
-            android:focusable="true" />
-
-        <View
-            android:layout_width="8dp"
-            android:layout_height="0dp" />
+            android:layout_marginEnd="8dp" />
 
         <Button
             android:id="@+id/clearFavoritesButton"
@@ -98,7 +84,6 @@
             android:text="Vider les favoris"
             android:textColor="?attr/colorOnPrimary"
             android:backgroundTint="?attr/colorPrimary"
-            android:contentDescription="Supprimer tous les favoris enregistrés"
-            android:focusable="true" />
+            android:layout_marginStart="8dp" />
     </LinearLayout>
 </LinearLayout>

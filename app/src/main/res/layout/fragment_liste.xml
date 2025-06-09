@@ -7,7 +7,6 @@
     android:background="@drawable/background_gradient"
     android:padding="16dp">
 
-    <!-- Toolbar avec titre centré -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_liste"
         android:layout_width="match_parent"
@@ -18,7 +17,15 @@
         app:titleTextColor="?attr/colorOnPrimary"
         app:titleCentered="true" />
 
-    <!-- Message si liste vide -->
+    <Spinner
+        android:id="@+id/sort_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="12dp"
+        android:backgroundTint="?attr/colorPrimary"
+        android:popupBackground="@color/white"
+        android:contentDescription="Trier les livres détectés" />
+
     <LinearLayout
         android:id="@+id/empty_container"
         android:layout_width="match_parent"
@@ -46,7 +53,6 @@
             android:textAlignment="center" />
     </LinearLayout>
 
-    <!-- Liste des livres détectés -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/detectedBooksRecyclerView"
         android:layout_width="match_parent"
@@ -55,7 +61,6 @@
         android:clipToPadding="false"
         android:paddingVertical="8dp" />
 
-    <!-- Boutons en bas -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -70,7 +75,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Retour" />
+            android:text="Recommencer" />
 
         <View
             android:layout_width="8dp"

@@ -1,16 +1,9 @@
 <resources>
-    <color name="teal_700">#00796B</color>
+    <color name="teal_700">#000000</color>
     <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
-
-    <!-- Material Colors Dark -->
+    <color name="black">#FFFFFF</color>
     <color name="colorPrimary">#000000</color>
-    <color name="colorPrimaryVariant">#000000</color>
     <color name="colorOnPrimary">#FFFFFF</color>
-    <color name="colorSecondary">#333333</color>
-    <color name="colorOnSecondary">#FFFFFF</color>
     <color name="colorBackground">#121212</color>
     <color name="colorOnBackground">#FFFFFF</color>
-    <color name="colorSurface">#1E1E1E</color>
-    <color name="colorOnSurface">#FFFFFF</color>
 </resources>

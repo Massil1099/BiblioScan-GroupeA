@@ -21,6 +21,10 @@ class FragmentWatchBooksDetection : Fragment() {
     private var imagePath: String? = null
     private var detectionResults: ArrayList<DetectionResult> = arrayListOf()
 
+    companion object {
+        var detectedBooks: List<com.example.biblioscan.Book> = emptyList()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -55,14 +59,11 @@ class FragmentWatchBooksDetection : Fragment() {
             return
         }
 
-        // Affichage de l’image avec les cadres
         val bitmapWithBoxes = drawBoundingBoxes(bitmap, detectionResults)
         binding.imageView.setImageBitmap(bitmapWithBoxes)
 
-        // Affichage du nombre de détections
         binding.detectionInfo.text = "📚 ${detectionResults.size} livre(s) détecté(s)"
 
-        // Affichage des étiquettes
         detectionResults.forEachIndexed { index, result ->
             val label = when (result.status) {
                 "no_text" -> "❗ Aucun texte détecté"

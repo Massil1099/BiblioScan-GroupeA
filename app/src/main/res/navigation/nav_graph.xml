@@ -143,6 +143,14 @@
         <action android:id="@+id/action_favoris_to_accueil" app:destination="@id/fragmentAccueil"
             app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right"/>
+        <action
+            android:id="@+id/action_favoris_to_resultat"
+            app:destination="@id/fragmentResultat"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
     </fragment>
 
     <!-- Fragment Historique -->
