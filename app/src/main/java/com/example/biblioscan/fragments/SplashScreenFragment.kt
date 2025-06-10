@@ -30,7 +30,7 @@ class FragmentSplashScreen : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Attendre 2 secondes avant la navigation
+        // Attendre 3 secondes avant la navigation
         Handler(Looper.getMainLooper()).postDelayed({
             val sessionManager = UserSessionManager(requireContext())
             val username = runBlocking { sessionManager.getUsername().first() }
@@ -40,7 +40,7 @@ class FragmentSplashScreen : Fragment() {
             } else {
                 findNavController().navigate(R.id.action_splash_to_connexion)
             }
-        }, 2000)
+        }, 3000)
     }
 
     override fun onDestroyView() {

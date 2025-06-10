@@ -45,11 +45,10 @@ class FragmentAccueil : Fragment() {
 
             setupNavigation()
 
-            if (!tutorialManager.hasSeenTutorial()) {
-                binding.root.postDelayed({
-                    showTutorial(username)
-                }, 500)
-            }
+            // Toujours afficher le tutoriel à chaque fois
+            binding.root.postDelayed({
+                showTutorial(username)
+            }, 500)
         }
     }
 
@@ -101,7 +100,7 @@ class FragmentAccueil : Fragment() {
 
     private fun showTutorialSteps(steps: List<Pair<View, Pair<String, String>>>, index: Int) {
         if (index >= steps.size) {
-            tutorialManager.setTutorialSeen()
+            // Ne plus enregistrer comme "vu" pour forcer l'affichage à chaque fois
             return
         }
 
