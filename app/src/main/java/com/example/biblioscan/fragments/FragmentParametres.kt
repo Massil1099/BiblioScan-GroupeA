@@ -1,55 +1,56 @@
 package com.example.biblioscan.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.biblioscan.databinding.FragmentParametresBinding
+import com.example.biblioscan.shared.ThemePreferenceManager
+import com.example.biblioscan.shared.TutorialManager
 
 class FragmentParametres : Fragment() {
 
     private var _binding: FragmentParametresBinding? = null
     private val binding get() = _binding!!
-    private val PREFS_NAME = "theme_prefs"
-    private val KEY_DARK_MODE = "dark_mode"
+    private lateinit var tutorialManager: TutorialManager
+    private lateinit var themeManager: ThemePreferenceManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentParametresBinding.inflate(inflater, container, false)
+        tutorialManager = TutorialManager(requireContext())
+        themeManager = ThemePreferenceManager(requireContext())
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val isDarkMode = prefs.getBoolean(KEY_DARK_MODE, false)
+        // Initialiser l'état du switch avec les préférences
+        binding.darkModeSwitch.isChecked = themeManager.isDarkMode()
 
-        binding.darkModeSwitch.isChecked = isDarkMode
-
+        // Gérer le changement de thème
         binding.darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            val editor = prefs.edit()
-            editor.putBoolean(KEY_DARK_MODE, isChecked)
-            editor.apply()
-
+            themeManager.setDarkMode(isChecked)
             AppCompatDelegate.setDefaultNightMode(
-                if (isChecked)
-                    AppCompatDelegate.MODE_NIGHT_YES
-                else
-                    AppCompatDelegate.MODE_NIGHT_NO
+                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
+                else AppCompatDelegate.MODE_NIGHT_NO
             )
-
-            // Redémarrage de l'activité pour appliquer le thème
+            // Nécessaire pour appliquer immédiatement
             requireActivity().recreate()
         }
 
+        // Bouton retour
         binding.backButton.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        // Bouton pour relancer le tutoriel
+        binding.restartTutorialButton.setOnClickListener {
+            tutorialManager.resetTutorial()
             findNavController().popBackStack()
         }
     }

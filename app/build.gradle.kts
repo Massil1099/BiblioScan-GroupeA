@@ -100,7 +100,10 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
-
+    //TargetView
+    implementation(libs.tap.target.view)
+    implementation(libs.materialtap)
+    implementation(libs.material.tap.target.prompt)
 
     //Serveur local avec Room
 

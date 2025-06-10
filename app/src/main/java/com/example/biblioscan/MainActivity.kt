@@ -4,20 +4,28 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.fragment.NavHostFragment
-import com.example.biblioscan.session.ThemePreferenceManager
+import com.example.biblioscan.databinding.ActivityMainBinding
+import com.example.biblioscan.shared.ThemePreferenceManager
 
 class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        val themePref = ThemePreferenceManager(this)
-        AppCompatDelegate.setDefaultNightMode(
-            if (themePref.isDarkMode()) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-        )
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
+    private lateinit var binding: ActivityMainBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        // Charger le mode sombre/claire avant d’attacher le layout
+        val isDarkMode = ThemePreferenceManager(this).isDarkMode()
+        AppCompatDelegate.setDefaultNightMode(
+            if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
+            else AppCompatDelegate.MODE_NIGHT_NO
+        )
+
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Configuration du NavHost
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
     }
-
 }

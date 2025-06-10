@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/colorBackground"
+    android:background="?android:colorBackground"
     android:padding="16dp"
     android:gravity="center"
     android:baselineAligned="false"
@@ -51,5 +51,4 @@
         android:importantForAccessibility="yes"
         android:focusable="true"
         android:contentDescription="Bouton retour" />
-
 </LinearLayout>

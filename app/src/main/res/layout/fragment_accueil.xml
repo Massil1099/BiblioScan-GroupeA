@@ -74,13 +74,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Authentification"
+            android:text="Authentification / Déconnexion"
             android:contentDescription="Gérer votre authentification"
             android:focusable="true"
             app:icon="@drawable/ic_auth"
             app:iconTint="?attr/colorOnPrimary"
             app:iconGravity="textStart"
-            app:iconPadding="12dp" />
+            app:iconPadding="2dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/camera_button"

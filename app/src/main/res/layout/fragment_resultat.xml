@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -13,6 +14,7 @@
         android:orientation="vertical"
         android:gravity="center_horizontal">
 
+        <!-- Image du livre -->
         <androidx.cardview.widget.CardView
             android:layout_width="200dp"
             android:layout_height="280dp"
@@ -30,6 +32,7 @@
                 android:background="@android:color/white" />
         </androidx.cardview.widget.CardView>
 
+        <!-- Titre et auteur -->
         <TextView
             android:id="@+id/book_title"
             android:layout_width="match_parent"
@@ -51,6 +54,7 @@
             android:gravity="center"
             android:layout_marginBottom="16dp" />
 
+        <!-- Description -->
         <TextView
             android:id="@+id/book_description"
             android:layout_width="match_parent"
@@ -61,6 +65,7 @@
             android:lineSpacingExtra="4dp"
             android:layout_marginBottom="24dp" />
 
+        <!-- Détails supplémentaires -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -81,6 +86,7 @@
             <TextView android:id="@+id/book_ratingsCount" style="@style/ResultTextView" android:contentDescription="Nombre d'évaluations" />
         </LinearLayout>
 
+        <!-- Boutons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -101,7 +107,10 @@
                 android:paddingStart="24dp"
                 android:paddingEnd="24dp" />
 
-            <View android:layout_width="16dp" android:layout_height="0dp" />
+            <!-- Espacement entre les boutons -->
+            <View
+                android:layout_width="16dp"
+                android:layout_height="wrap_content" />
 
             <Button
                 android:id="@+id/back_button"

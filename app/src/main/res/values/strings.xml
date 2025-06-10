@@ -1,19 +1,7 @@
 <resources>
-
     <string name="app_name">BiblioScan</string>
-    <string name="book_image">image_du_livre</string>
-    <string name="capture_button">capture_bouton</string>
-    <string-array name="filters_array">
-        <item>Titre (A → Z)</item>
-        <item>Titre (Z → A)</item>
-        <item>Date (récent → ancien)</item>
-        <item>Date (ancien → récent)</item>
-    </string-array>
-    <string-array name="filter_options">
-        <item>Tout</item>
-        <item>A → Z</item>
-        <item>Z → A</item>
-        <item>Plus récents</item>
-    </string-array>
-
+    <string name="settings">Paramètres</string>
+    <string name="dark_mode">Mode sombre</string>
+    <string name="restart_tutorial">Relancer le tutoriel</string>
+    <string name="back">Retour</string>
 </resources>
