@@ -13,7 +13,6 @@ import com.example.biblioscan.Book
 import com.example.biblioscan.DetectedBookAdapter
 import com.example.biblioscan.ImageProcessing.DetectionResult
 import com.example.biblioscan.R
-import com.example.biblioscan.backend.searchBooksFromTitles
 import com.example.biblioscan.data_app.AppDatabase
 import com.example.biblioscan.data_app.BookEntity
 import com.example.biblioscan.data_app.HistoryEntity
@@ -21,6 +20,7 @@ import com.example.biblioscan.databinding.FragmentListeVideoBinding
 import com.example.biblioscan.session.UserSessionManager
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import searchBooksAvoidingDuplicates
 
 class FragmentListeVideo : Fragment() {
 

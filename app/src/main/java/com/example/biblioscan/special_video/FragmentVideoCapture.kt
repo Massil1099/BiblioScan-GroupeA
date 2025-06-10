@@ -37,6 +37,7 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
+import areTextsSimilar
 import com.example.biblioscan.ImageProcessing.DetectionResult
 import com.example.biblioscan.ImageProcessing.YoloBookDetector
 import com.example.biblioscan.ImageProcessing.extractTextFromBoundingBoxes
@@ -233,44 +234,55 @@ class FragmentVideoCapture : Fragment() {
         val dir = File(requireContext().filesDir, "video_frames").apply { mkdirs() }
 
         clearDirectory(dir)
-        allResultsWithText.clear() // Nettoyer les résultats précédents
+        allResultsWithText.clear()
+
+        val alreadySeenTexts = mutableListOf<String>()
 
         frames.forEachIndexed { index, bitmap ->
             val results = detector.detect(bitmap)
             val resultsWithText = extractTextFromBoundingBoxes(bitmap, results)
 
-            // Ajouter les résultats pour cette frame
-            allResultsWithText.addAll(resultsWithText)
+            // Garde tous les résultats pour affichage
+            val toDraw = resultsWithText.toMutableList()
 
-            val annotated = drawBoundingBoxes(bitmap, resultsWithText)
-            val frameFile = File(dir, "frame_$index.jpg")
-            FileOutputStream(frameFile).use { fos ->
-                annotated.compress(Bitmap.CompressFormat.JPEG, 100, fos)
-            }
+            // Déduplication pour allResultsWithText
+            val filteredResults = resultsWithText.filter { detection ->
+                val text = detection.label.trim()
+                if (text.length < 5) {
+                    detection.status = "no_text"
+                    return@filter false
+                }
 
-            Log.d("VideoProcessing", "Frame $index traitée avec ${resultsWithText.size} détections.")
-        }
+                val isDuplicate = alreadySeenTexts.any { seen ->
+                    areTextsSimilar(seen, text)
+                }
 
-        Log.d("VideoProcessing", "Traitement terminé. ${frames.size} frames traitées avec ${allResultsWithText.size} détections totales.")
-    }
-    private fun extractFramesFromVideo(videoFile: File): List<Bitmap> {
-        val retriever = MediaMetadataRetriever()
-        val frameList = mutableListOf<Bitmap>()
-        try {
-            retriever.setDataSource(videoFile.absolutePath)
-            val durationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0L
-            for (timeMs in 0 until durationMs step 3000L) {
-                retriever.getFrameAtTime(timeMs * 1000, MediaMetadataRetriever.OPTION_CLOSEST)?.let {
-                    frameList.add(it)
+                if (isDuplicate) {
+                    detection.status = "duplicate"
+                    false
+                } else {
+                    alreadySeenTexts.add(text)
+                    true
                 }
             }
-        } catch (e: Exception) {
-            Log.e("VideoProcessing", "Erreur extraction frames : ${e.message}")
-        } finally {
-            retriever.release()
+
+            // Ajoute uniquement les textes non dupliqués ou valides
+            allResultsWithText.addAll(filteredResults)
+
+            // Affiche toutes les détections pour visualisation
+            val annotatedBitmap = drawBoundingBoxes(bitmap, toDraw)
+
+            val frameFile = File(dir, "frame_$index.jpg")
+            FileOutputStream(frameFile).use { fos ->
+                annotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+            }
+
+            Log.d("VideoProcessing", "✅ Frame $index traitée : ${filteredResults.size} gardées / ${resultsWithText.size} initiales")
         }
-        return frameList
+
+        Log.d("VideoProcessing", "🎬 Traitement terminé. ${frames.size} frames, ${allResultsWithText.size} détections uniques.")
     }
+
 
     private fun drawBoundingBoxes(bitmap: Bitmap, results: List<DetectionResult>): Bitmap {
         val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
@@ -306,3 +318,22 @@ class FragmentVideoCapture : Fragment() {
 }
 
 
+fun extractFramesFromVideo(videoFile: File): List<Bitmap> {
+    val retriever = MediaMetadataRetriever()
+    retriever.setDataSource(videoFile.absolutePath)
+    val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
+
+    val frameIntervalMs = 3000L  // Extraction d'une frame toutes les 500ms (modifiable)
+    val frames = mutableListOf<Bitmap>()
+
+    var timeMs = 0L
+    while (timeMs < duration) {
+        val frame = retriever.getFrameAtTime(timeMs * 1000)  // microsecondes
+        if (frame != null) {
+            frames.add(frame)
+        }
+        timeMs += frameIntervalMs
+    }
+    retriever.release()
+    return frames
+}
