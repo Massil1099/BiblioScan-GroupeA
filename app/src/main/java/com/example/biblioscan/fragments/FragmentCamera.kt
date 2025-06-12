@@ -6,14 +6,17 @@ import android.graphics.*
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.core.view.VelocityTrackerCompat.recycle
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.biblioscan.ImageProcessing.DetectionResult
+import com.example.biblioscan.ImageProcessing.ImagePreprocessor
 import com.example.biblioscan.ImageProcessing.YoloBookDetector
 import com.example.biblioscan.ImageProcessing.extractTextFromBoundingBoxes
 import com.example.biblioscan.R
@@ -86,53 +89,62 @@ class FragmentCamera : Fragment() {
 
     private fun takePhoto() {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val dir = File(requireContext().filesDir, "images")
-        if (!dir.exists()) dir.mkdirs()
-
-        val imageFile = File(dir, "original_$timeStamp.jpg")
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
+        val dir = File(requireContext().filesDir, "images").apply { mkdirs() }
 
         imageCapture.takePicture(
-            outputOptions,
+            ImageCapture.OutputFileOptions.Builder(File(dir, "original_$timeStamp.jpg")).build(),
             ContextCompat.getMainExecutor(requireContext()),
             object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val savedPath = imageFile.absolutePath
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     lifecycleScope.launch {
+                        // 1. Chargement et prétraitement global
                         val bitmap = withContext(Dispatchers.IO) {
-                            BitmapFactory.decodeFile(savedPath)
-                        }
+                            BitmapFactory.decodeFile(output.savedUri?.path).let { original ->
+                                ImagePreprocessor.binarizeBitmap(ImagePreprocessor.toGrayscale(original)).also {
+                                    original.recycle()
+                                }
+                            }
+                        } ?: return@launch
 
-                        val detector = YoloBookDetector(requireContext())
-                        val results = detector.detect(bitmap)
-
-                        if (results.isEmpty()) {
-                            Log.d("CameraXApp", "Aucun livre détecté.")
+                        // 2. Détection des livres
+                        val detections = YoloBookDetector(requireContext()).detect(bitmap)
+                        if (detections.isEmpty()) {
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(context, "Aucun livre détecté", Toast.LENGTH_SHORT).show()
+                            }
                             return@launch
                         }
 
-                        val detectionResults = extractTextFromBoundingBoxes(bitmap, results)
-                        val annotatedBitmap = drawBoundingBoxes(bitmap, detectionResults)
+                        // 3. Extraction OCR avec prétraitement localisé
+                        val results = extractTextFromBoundingBoxes(bitmap, detections)
 
-                        val processedFile = File(dir, "processed_$timeStamp.jpg")
-                        withContext(Dispatchers.IO) {
-                            FileOutputStream(processedFile).use { fos ->
-                                annotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+                        // 4. Dessin des bounding boxes AVEC texte reconnu
+                        val annotatedBitmap = drawBoundingBoxes(bitmap.apply {
+                            if (!isRecycled) recycle()
+                        }, results).apply {
+                            // Post-traitement final si besoin
+                        }
+
+                        // 5. Sauvegarde de l'image annotée
+                        val resultFile = File(dir, "annotated_$timeStamp.jpg").apply {
+                            FileOutputStream(this).use {
+                                annotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, it)
                             }
                         }
 
-                        val bundle = Bundle().apply {
-                            putString("capturedImagePath", processedFile.absolutePath)
-                            putParcelableArrayList("detectionResults", ArrayList(detectionResults))
-                            putStringArrayList("detectedTexts", ArrayList(detectionResults.map { it.label }))
-                        }
-
-                        findNavController().navigate(R.id.action_camera_to_liste, bundle)
+                        // 6. Navigation avec résultats
+                        findNavController().navigate(
+                            R.id.action_camera_to_liste,
+                            Bundle().apply {
+                                putString("imagePath", resultFile.absolutePath)
+                                putParcelableArrayList("results", ArrayList(results))
+                            }
+                        )
                     }
                 }
 
-                override fun onError(exception: ImageCaptureException) {
-                    Log.e("CameraXApp", "Erreur capture : ${exception.message}", exception)
+                override fun onError(ex: ImageCaptureException) {
+                    Log.e("CameraXApp", "Erreur capture", ex)
                 }
             }
         )

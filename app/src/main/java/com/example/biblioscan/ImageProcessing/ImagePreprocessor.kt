@@ -1,16 +1,14 @@
-package com.example.biblioscan.imageProcessing
+package com.example.biblioscan.ImageProcessing
 
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Matrix
 import androidx.core.graphics.createBitmap
-import androidx.core.graphics.get
-import androidx.core.graphics.set
 
 object ImagePreprocessor {
 
     // Convertit l’image en niveaux de gris
-    private fun toGrayscale(src: Bitmap): Bitmap {
+    fun toGrayscale(src: Bitmap): Bitmap {
         val width = src.width
         val height = src.height
         val grayBitmap = createBitmap(width, height)
@@ -58,24 +56,5 @@ object ImagePreprocessor {
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 
-    // Optionnel : inversion de l'image (utile si fond noir, texte blanc)
-    fun invertBitmap(bitmap: Bitmap): Bitmap {
-        val width = bitmap.width
-        val height = bitmap.height
-        val pixels = IntArray(width * height)
-        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
-
-        for (i in pixels.indices) {
-            val color = pixels[i]
-            val r = 255 - Color.red(color)
-            val g = 255 - Color.green(color)
-            val b = 255 - Color.blue(color)
-            pixels[i] = Color.rgb(r, g, b)
-        }
-
-        val inverted = createBitmap(width, height)
-        inverted.setPixels(pixels, 0, width, 0, 0, width, height)
-        return inverted
-    }
 
 }
