@@ -38,9 +38,9 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import areTextsSimilar
-import com.example.biblioscan.ImageProcessing.DetectionResult
-import com.example.biblioscan.ImageProcessing.YoloBookDetector
-import com.example.biblioscan.ImageProcessing.extractTextFromBoundingBoxes
+import com.example.biblioscan.imageProcessing.DetectionResult
+import com.example.biblioscan.imageProcessing.YoloBookDetector
+import com.example.biblioscan.imageProcessing.extractTextFromBoundingBoxes
 import com.example.biblioscan.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

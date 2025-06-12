@@ -1,18 +1,16 @@
-// FragmentFavoris.kt
 package com.example.biblioscan.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.biblioscan.Book
-import com.example.biblioscan.R
 import com.example.biblioscan.DetectedBookAdapter
+import com.example.biblioscan.R
 import com.example.biblioscan.data_app.AppDatabase
 import com.example.biblioscan.data_app.toBook
 import com.example.biblioscan.databinding.FragmentFavorisBinding
@@ -26,68 +24,126 @@ class FragmentFavoris : Fragment() {
     private val binding get() = _binding!!
     private lateinit var adapter: DetectedBookAdapter
     private lateinit var sessionManager: UserSessionManager
-
-
+    private var allBooks = listOf<com.example.biblioscan.Book>()
+    private var currentFilter = "Tous"
+    private var currentSort = "Plus récent"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFavorisBinding.inflate(inflater, container, false)
-        sessionManager = UserSessionManager(requireContext())
+        return binding.root
+    }
 
-        // Initialiser l'adaptateur
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        sessionManager = UserSessionManager(requireContext())
         adapter = DetectedBookAdapter { book ->
-            // Gérer le clic sur un livre favori (exemple)
             val bundle = Bundle().apply {
-                putString("title", book.title)
-                putString("author", book.author)
-                putString("description", book.description)
+                putParcelable("book", book)
             }
-            findNavController().navigate(R.id.action_favoris_to_accueil, bundle)
+            findNavController().navigate(R.id.action_favoris_to_resultat, bundle)
         }
 
-        // Configurer le RecyclerView
-        binding.favoritesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.favoritesRecyclerView.adapter = adapter
+        binding.favorisRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.favorisRecyclerView.adapter = adapter
 
-        // Charger les favoris
-        loadFavorites()
-
-        // Bouton retour
         binding.backButton.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        return binding.root
+        binding.clearFavoritesButton.setOnClickListener {
+            lifecycleScope.launch {
+                val username = sessionManager.getUsername().first() ?: return@launch
+                val dao = AppDatabase.getDatabase(requireContext()).biblioScanDao()
+                val favorites = dao.getFavoritesForUser(username)
+                favorites.forEach {
+                    val title = it.title ?: return@forEach
+                    dao.removeFavorite(username, title)
+                }
+                loadFavorites()
+                Toast.makeText(requireContext(), "Favoris vidés", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
+        setupFilterSpinner()
+        setupSortSpinner()
+        loadFavorites()
+    }
+
+    private fun setupFilterSpinner() {
+        val options = listOf("Tous", "Favoris", "Non favoris")
+        val spinnerAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, options)
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.filterSpinner.adapter = spinnerAdapter
+
+        binding.filterSpinner.setSelection(0)
+        binding.filterSpinner.setOnItemSelectedListener { _, _, position, _ ->
+            currentFilter = options[position]
+            filterBooks()
+        }
+    }
+
+    private fun setupSortSpinner() {
+        val options = listOf("Plus récent", "Titre A-Z", "Titre Z-A")
+        val spinnerAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, options)
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.sortSpinner.adapter = spinnerAdapter
+
+        binding.sortSpinner.setSelection(0)
+        binding.sortSpinner.setOnItemSelectedListener { _, _, position, _ ->
+            currentSort = options[position]
+            filterBooks()
+        }
     }
 
     private fun loadFavorites() {
+        val dao = AppDatabase.getDatabase(requireContext()).biblioScanDao()
+
         viewLifecycleOwner.lifecycleScope.launch {
-            val username = sessionManager.getUsername().first()
-            if (username == null || username == "guest") {
-                Toast.makeText(requireContext(), "Mode invité : favoris non disponibles", Toast.LENGTH_SHORT).show()
-                binding.emptyContainer.visibility = View.VISIBLE
-                binding.favoritesRecyclerView.visibility = View.GONE
-                return@launch            }
-
-            val dao = AppDatabase.getDatabase(requireContext()).biblioScanDao()
-            val favoriteBooksEntity = dao.getFavoritesForUser(username)
-            val favoriteBooks = favoriteBooksEntity.map { it.toBook() }
-
-            if (favoriteBooks.isEmpty()) {
-                binding.emptyContainer.visibility = View.VISIBLE
-                binding.favoritesRecyclerView.visibility = View.GONE
-            } else {
-                binding.emptyContainer.visibility = View.GONE
-                binding.favoritesRecyclerView.visibility = View.VISIBLE
-                adapter.submitList(favoriteBooks)
-            }
+            val username = sessionManager.getUsername().first() ?: return@launch
+            val favorites = dao.getFavoritesForUser(username)
+            allBooks = favorites.map { it.toBook() }
+            filterBooks()
         }
+    }
+
+    private fun filterBooks() {
+        var filtered = allBooks
+
+        // Appliquer le filtre
+        filtered = when (currentFilter) {
+            "Favoris" -> filtered.filter { it.isFavorite }
+            "Non favoris" -> filtered.filter { !it.isFavorite }
+            else -> filtered
+        }
+
+        // Appliquer le tri
+        filtered = when (currentSort) {
+            "Titre A-Z" -> filtered.sortedBy { it.title }
+            "Titre Z-A" -> filtered.sortedByDescending { it.title }
+            "Plus récent" -> filtered // on considère que la liste l'est déjà
+            else -> filtered
+        }
+
+        adapter.submitList(filtered)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun Spinner.setOnItemSelectedListener(listener: (adapter: Spinner, view: View?, position: Int, id: Long) -> Unit) {
+        this.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
+                listener(this@setOnItemSelectedListener, view, position, id)
+            }
+
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
+        }
     }
 }

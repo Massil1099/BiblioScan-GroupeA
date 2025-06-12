@@ -1,4 +1,4 @@
-package com.example.biblioscan.ImageProcessing
+package com.example.biblioscan.imageProcessing
 
 import android.graphics.Bitmap
 import android.graphics.RectF
@@ -20,12 +20,7 @@ data class DetectionResult(
     var frameIndex: Int? = null // Rendons-le nullable pour les photos
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        RectF(
-            parcel.readFloat(),
-            parcel.readFloat(),
-            parcel.readFloat(),
-            parcel.readFloat()
-        ),
+        RectF(parcel.readFloat(), parcel.readFloat(), parcel.readFloat(), parcel.readFloat()),
         parcel.readFloat(),
         parcel.readString() ?: "",
         parcel.readString() ?: "ok",
@@ -44,21 +39,14 @@ data class DetectionResult(
         parcel.writeInt(frameIndex ?: -1) // -1 pour null
     }
 
-
     override fun describeContents(): Int = 0
 
     companion object CREATOR : Parcelable.Creator<DetectionResult> {
-        override fun createFromParcel(parcel: Parcel): DetectionResult {
-            return DetectionResult(parcel)
-        }
-
-        override fun newArray(size: Int): Array<DetectionResult?> {
-            return arrayOfNulls(size)
-        }
+        override fun createFromParcel(parcel: Parcel): DetectionResult = DetectionResult(parcel)
+        override fun newArray(size: Int): Array<DetectionResult?> = arrayOfNulls(size)
     }
 }
 
-// Fonction suspendue avec coroutine pour le traitement OCR
 suspend fun extractTextFromBoundingBoxes(
     bitmap: Bitmap,
     results: List<DetectionResult>
@@ -66,30 +54,44 @@ suspend fun extractTextFromBoundingBoxes(
     val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
     results.map { detection ->
-        val left = detection.boundingBox.left.toInt().coerceAtLeast(0)
-        val top = detection.boundingBox.top.toInt().coerceAtLeast(0)
-        val right = detection.boundingBox.right.toInt().coerceAtMost(bitmap.width)
-        val bottom = detection.boundingBox.bottom.toInt().coerceAtMost(bitmap.height)
+        val box = detection.boundingBox
+        val left = box.left.toInt().coerceIn(0, bitmap.width - 1)
+        val top = box.top.toInt().coerceIn(0, bitmap.height - 1)
+        val right = box.right.toInt().coerceIn(left + 1, bitmap.width)
+        val bottom = box.bottom.toInt().coerceIn(top + 1, bitmap.height)
 
-        val cropped = Bitmap.createBitmap(
-            bitmap,
-            left,
-            top,
-            (right - left).coerceAtLeast(1),
-            (bottom - top).coerceAtLeast(1)
-        )
-
-        val image = InputImage.fromBitmap(cropped, 0)
-        try {
-            val result = recognizer.process(image).await()
-            detection.label = result.text
-            detection.status = if (result.text.trim().length < 5) "no_text" else "ok"
+        val cropped = try {
+            Bitmap.createBitmap(bitmap, left, top, right - left, bottom - top)
         } catch (e: Exception) {
-            Log.e("OCR", "Erreur OCR", e)
-            detection.label = "Erreur OCR"
-            detection.status = "ignored"
+            detection.status = "error_crop"
+            null
+        }
+
+        if (cropped != null) {
+            val preprocessed = ImagePreprocessor.preprocess(cropped)
+
+            val image = InputImage.fromBitmap(preprocessed, 0)
+            try {
+                val result = recognizer.process(image).await()
+                val rawText = result.text.trim()
+                val cleaned = cleanText(rawText)
+                detection.label = cleaned
+                detection.status = if (cleaned.length < 5) "no_text" else "ok"
+            } catch (e: Exception) {
+                detection.label = "Erreur OCR"
+                detection.status = "ocr_failed"
+            }
         }
 
         detection
     }
+}
+
+// Nettoyage + suppression de caractères inutiles
+private fun cleanText(text: String): String {
+    return text
+        .replace("\n", " ")
+        .replace(Regex("\\s+"), " ")
+        .replace(Regex("[^\\p{L}\\p{N} .,'’:\\-]"), "")
+        .trim()
 }

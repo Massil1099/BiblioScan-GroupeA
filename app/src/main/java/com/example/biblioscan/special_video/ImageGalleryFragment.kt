@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.biblioscan.ImageProcessing.DetectionResult
+import com.example.biblioscan.imageProcessing.DetectionResult
 import com.example.biblioscan.R
 import com.example.biblioscan.databinding.FragmentImageGalleryBinding
 import com.example.biblioscan.databinding.ItemImageFrameBinding

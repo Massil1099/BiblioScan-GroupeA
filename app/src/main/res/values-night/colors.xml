@@ -1,0 +1,9 @@
+<resources>
+    <color name="teal_700">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#FFFFFF</color>
+    <color name="colorPrimary">#000000</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorBackground">#121212</color>
+    <color name="colorOnBackground">#FFFFFF</color>
+</resources>

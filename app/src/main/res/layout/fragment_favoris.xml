@@ -1,4 +1,4 @@
-<!-- res/layout/fragment_favoris.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -7,53 +7,83 @@
     android:background="@drawable/background_gradient"
     android:padding="16dp">
 
+    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_favoris"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/teal_700"
+        android:background="?attr/colorPrimary"
         app:title="Favoris"
-        app:titleTextColor="@android:color/white" />
+        app:titleTextColor="?attr/colorOnPrimary"
+        android:elevation="4dp" />
 
+    <!-- Spinners -->
     <LinearLayout
-        android:id="@+id/empty_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="32dp"
-        android:visibility="gone">
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center">
 
-        <ImageView
-            android:id="@+id/empty_image"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_marginBottom="16dp"
-            android:src="@drawable/ic_empty" />
-
-        <TextView
-            android:id="@+id/empty_message"
-            android:layout_width="wrap_content"
+        <Spinner
+            android:id="@+id/filterSpinner"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Aucun livre en favoris pour l'instant."
-            android:textSize="18sp"
-            android:textColor="@android:color/white" />
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="?attr/colorPrimary"
+            android:spinnerMode="dropdown"
+            android:popupBackground="@color/white"
+            android:contentDescription="Filtrer les livres" />
+
+        <Spinner
+            android:id="@+id/sortSpinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="?attr/colorPrimary"
+            android:spinnerMode="dropdown"
+            android:popupBackground="@color/white"
+            android:contentDescription="Trier les livres" />
     </LinearLayout>
 
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/favorites_recycler_view"
+        android:id="@+id/favorisRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"
-        android:clipToPadding="false" />
+        android:clipToPadding="false"
+        android:padding="8dp" />
 
-    <Button
-        android:id="@+id/back_button"
-        android:layout_width="wrap_content"
+    <!-- Boutons -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="← RETOUR"
-        android:textColor="@android:color/white"
-        android:backgroundTint="@color/teal_700"
-        android:layout_marginTop="16dp" />
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:weightSum="2"
+        android:gravity="center_vertical">
+
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="RETOUR"
+            android:textColor="?attr/colorOnPrimary"
+            android:backgroundTint="?attr/colorPrimary"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/clearFavoritesButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Vider les favoris"
+            android:textColor="?attr/colorOnPrimary"
+            android:backgroundTint="?attr/colorPrimary"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
 </LinearLayout>

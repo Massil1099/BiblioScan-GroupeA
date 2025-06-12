@@ -1,4 +1,4 @@
-<!-- res/layout/fragment_historique.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -7,63 +7,114 @@
     android:background="@drawable/background_gradient"
     android:padding="16dp">
 
+    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_historique"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/teal_700"
+        android:background="?attr/colorPrimary"
         app:title="Historique"
-        app:titleTextColor="@android:color/white" />
+        app:titleTextColor="?attr/colorOnPrimary"
+        android:elevation="4dp" />
 
+    <!-- Champ de recherche -->
+    <EditText
+        android:id="@+id/searchEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Rechercher un livre..."
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:padding="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/rounded_edittext_background"
+        android:textColor="?attr/colorOnBackground"
+        android:textColorHint="?attr/colorOnBackground" />
+
+    <!-- Empty State -->
     <LinearLayout
         android:id="@+id/empty_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
         android:padding="32dp"
         android:visibility="gone">
 
         <ImageView
-            android:id="@+id/empty_image"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_marginBottom="16dp"
-            android:src="@drawable/ic_empty" />
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_empty"
+            app:tint="?attr/colorOnBackground"
+            android:contentDescription="@string/app_name"
+            android:layout_marginBottom="16dp" />
 
         <TextView
             android:id="@+id/empty_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Aucun livre scanné pour l'instant."
-            android:textSize="18sp"
-            android:textColor="@android:color/white" />
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnBackground"
+            android:textAlignment="center" />
     </LinearLayout>
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="Chargement de l’historique en cours" />
+    <Spinner
+        android:id="@+id/filter_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="?attr/colorPrimary"
+        android:spinnerMode="dropdown"
+        android:popupBackground="@color/white"
+        android:contentDescription="Filtrer les livres"
+        android:importantForAccessibility="yes" />
 
+    <!-- Liste -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/history_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:padding="8dp"
         android:clipToPadding="false" />
 
-    <Button
-        android:id="@+id/back_button"
-        android:layout_width="wrap_content"
+    <!-- Boutons -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="← RETOUR"
-        android:textColor="@android:color/white"
-        android:backgroundTint="@color/teal_700"
-        android:layout_marginTop="16dp" />
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:weightSum="2"
+        android:gravity="center_vertical">
 
-    <Button
-        android:id="@+id/clearHistoryButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/teal_700"
-        android:text="Vider l'historique"
-        android:textColor="@android:color/white" />
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="RETOUR"
+            android:textColor="?attr/colorOnPrimary"
+            android:backgroundTint="?attr/colorPrimary"
+            android:layout_marginEnd="8dp" />
 
+        <Button
+            android:id="@+id/clearHistoryButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Vider l'historique"
+            android:textColor="?attr/colorOnPrimary"
+            android:backgroundTint="?attr/colorPrimary"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
 </LinearLayout>

@@ -101,7 +101,10 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
-
+    //TargetView
+    implementation(libs.tap.target.view)
+    implementation(libs.materialtap)
+    implementation(libs.material.tap.target.prompt)
 
     //Serveur local avec Room
 
@@ -134,5 +137,9 @@ dependencies {
 
     // Preferences DataStore (SharedPreferences like APIs)
     implementation("androidx.datastore:datastore-preferences:1.1.7")
+
+    implementation(libs.lottie)
+
+    implementation ("uk.co.samuelwall:material-tap-target-prompt:3.0.0")
 
 }

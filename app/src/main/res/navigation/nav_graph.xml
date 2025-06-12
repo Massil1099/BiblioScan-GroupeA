@@ -1,8 +1,33 @@
-<!-- res/navigation/nav_graph.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/fragmentConnexion">
+    app:startDestination="@id/fragmentSplashScreen">
+
+    <!-- Splash Screen -->
+    <fragment
+        android:id="@+id/fragmentSplashScreen"
+        android:name="com.example.biblioscan.fragments.FragmentSplashScreen"
+        android:label="SplashScreen"
+        tools:layout="@layout/fragment_splash_screen">
+
+        <action
+            android:id="@+id/action_splash_to_connexion"
+            app:destination="@id/fragmentConnexion"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_splash_to_accueil"
+            app:destination="@id/fragmentAccueil"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
 
     <!-- Fragment Connexion -->
     <fragment
@@ -13,7 +38,6 @@
         <action
             android:id="@+id/action_connexion_to_inscription"
             app:destination="@id/fragmentInscription" />
-
         <action
             android:id="@+id/action_connexion_to_accueil"
             app:destination="@id/fragmentAccueil"
@@ -22,12 +46,12 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
     </fragment>
+
     <fragment
         android:id="@+id/fragmentInscription"
         android:name="com.example.biblioscan.fragments.FragmentInscription"
         android:label="Inscription"
         tools:layout="@layout/fragment_inscription">
-
         <action
             android:id="@+id/action_inscription_to_connexion"
             app:destination="@id/fragmentConnexion" />
@@ -80,6 +104,13 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
 
+        <action
+            android:id="@+id/action_accueil_to_parametres"
+            app:destination="@id/fragmentParametres"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <!-- Fragment Caméra -->
@@ -88,24 +119,14 @@
         android:name="com.example.biblioscan.fragments.FragmentCamera"
         android:label="Caméra"
         tools:layout="@layout/fragment_camera">
-        <action
-            android:id="@+id/action_camera_to_liste"
-            app:destination="@id/fragmentListe"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_camera_to_watchBooksDetection"
-            app:destination="@id/fragmentWatchBooksDetection" />
-
-        <action
-            android:id="@+id/action_camera_to_accueil"
-            app:destination="@id/fragmentAccueil"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+        <action android:id="@+id/action_camera_to_liste" app:destination="@id/fragmentListe"
+            app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right"/>
+        <action android:id="@+id/action_camera_to_watchBooksDetection"
+            app:destination="@id/fragmentWatchBooksDetection"/>
+        <action android:id="@+id/action_camera_to_accueil" app:destination="@id/fragmentAccueil"
+            app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right"/>
     </fragment>
 
     <!-- Fragment Liste -->
@@ -114,28 +135,16 @@
         android:name="com.example.biblioscan.fragments.FragmentListe"
         android:label="Liste"
         tools:layout="@layout/fragment_liste">
-
-        <action
-            android:id="@+id/action_liste_to_resultat"
-            app:destination="@id/fragmentResultat"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"  />
-        <action
-            android:id="@+id/action_liste_to_accueil"
-            app:destination="@id/fragmentAccueil"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_liste_to_watchBooksDetection"
+        <action android:id="@+id/action_liste_to_resultat" app:destination="@id/fragmentResultat"
+            app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right"/>
+        <action android:id="@+id/action_liste_to_accueil" app:destination="@id/fragmentAccueil"
+            app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right"/>
+        <action android:id="@+id/action_liste_to_watchBooksDetection"
             app:destination="@id/fragmentWatchBooksDetection"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right"/>
     </fragment>
 
     <!-- Fragment Résultat -->
@@ -144,22 +153,12 @@
         android:name="com.example.biblioscan.fragments.FragmentResultat"
         android:label="Résultat"
         tools:layout="@layout/fragment_resultat">
-
-        <action
-            android:id="@+id/action_resultat_to_camera"
-            app:destination="@id/fragmentCamera"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-
-        <action
-            android:id="@+id/action_resultat_to_liste"
-            app:destination="@id/fragmentListe"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+        <action android:id="@+id/action_resultat_to_camera" app:destination="@id/fragmentCamera"
+            app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right"/>
+        <action android:id="@+id/action_resultat_to_liste" app:destination="@id/fragmentListe"
+            app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right"/>
     </fragment>
 
     <!-- Fragment Favoris -->
@@ -168,14 +167,17 @@
         android:name="com.example.biblioscan.fragments.FragmentFavoris"
         android:label="Favoris"
         tools:layout="@layout/fragment_favoris">
-
+        <action android:id="@+id/action_favoris_to_accueil" app:destination="@id/fragmentAccueil"
+            app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right"/>
         <action
-            android:id="@+id/action_favoris_to_accueil"
-            app:destination="@id/fragmentAccueil"
+            android:id="@+id/action_favoris_to_resultat"
+            app:destination="@id/fragmentResultat"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+
     </fragment>
 
     <!-- Fragment Historique -->
@@ -184,51 +186,38 @@
         android:name="com.example.biblioscan.fragments.FragmentHistorique"
         android:label="Historique"
         tools:layout="@layout/fragment_historique">
-
-        <action
-            android:id="@+id/action_historique_to_accueil"
-            app:destination="@id/fragmentAccueil"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-
-        <action
-            android:id="@+id/action_historique_to_resultat"
-            app:destination="@id/fragmentResultat"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+        <action android:id="@+id/action_historique_to_accueil" app:destination="@id/fragmentAccueil"
+            app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right"/>
+        <action android:id="@+id/action_historique_to_resultat" app:destination="@id/fragmentResultat"
+            app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right"/>
     </fragment>
 
-
-
-
-
-
-    <!-- Fragment Regarder image avec boundboxes sur les livres -->
+    <!-- Fragment WatchBooksDetection -->
     <fragment
         android:id="@+id/fragmentWatchBooksDetection"
         android:name="com.example.biblioscan.fragments.FragmentWatchBooksDetection"
         android:label="WatchBooksDetection"
         tools:layout="@layout/fragment_watch_books_detection">
-
-        <action
-            android:id="@+id/action_watchBooksDetection_to_camera"
+        <action android:id="@+id/action_watchBooksDetection_to_camera"
             app:destination="@id/fragmentCamera"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-
-        <action
-            android:id="@+id/action_watchBooksDetection_to_resultat"
+            app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right"/>
+        <action android:id="@+id/action_watchBooksDetection_to_resultat"
             app:destination="@id/fragmentResultat"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right"/>
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentParametres"
+        android:name="com.example.biblioscan.fragments.FragmentParametres"
+        android:label="Paramètres"
+        tools:layout="@layout/fragment_parametres">
+
+        <action android:id="@+id/action_parametres_to_accueil"
+            app:destination="@id/fragmentAccueil"
+            app:enterAnim="@anim/slide_in_left" app:exitAnim="@anim/slide_out_right"/>
     </fragment>
 
 

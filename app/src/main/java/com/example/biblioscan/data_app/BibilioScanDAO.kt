@@ -60,6 +60,9 @@ interface BiblioScanDao {
     @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE username = :username AND bookTitle = :bookTitle)")
     suspend fun isFavorite(username: String, bookTitle: String): Boolean
 
+    @Query("DELETE FROM favorites WHERE username = :username")
+    suspend fun clearFavorites(username: String)
+
 
     // ------------------------------
     // HISTORY
