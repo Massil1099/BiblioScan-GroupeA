@@ -17,6 +17,6 @@ data class Book(
     val isbn13: String?,
     val averageRating: Double?,
     val ratingsCount: Int?,
+    val isFavorite: Boolean = false,
+    val ocrStatus: String = "valid" // "valid", "ignored", "no_text"
 ) : Parcelable
-
-

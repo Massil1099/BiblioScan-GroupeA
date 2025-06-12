@@ -21,6 +21,9 @@ cameraLifecycle = "1.4.2"
 cameraView = "1.4.2"
 navigationFragmentKtx = "2.8.9"
 textRecognition = "16.0.1"
+lottie = "6.3.0"
+tapTarget = "1.13.3"
+
 
 [libraries]
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCoreVersion" }
@@ -45,6 +48,10 @@ androidx-camera-core = { group = "androidx.camera", name = "camera-core", versio
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraLifecycle" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraView" }
 text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "textRecognition" }
+lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
+tap-target-view = { module = "com.getkeepsafe.taptargetview:taptargetview", version.ref = "tapTarget" }
+materialtap = { group = "uk.co.samuelwall", name = "material-tap-target-prompt", version = "3.3.2" }
+material-tap-target-prompt = { module = "uk.co.samuelwall:material-tap-target-prompt", version = "3.3.2" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

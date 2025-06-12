@@ -34,17 +34,20 @@ class FragmentConnexion : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Initialisation de la base de données et session
         dao = AppDatabase.getDatabase(requireContext()).biblioScanDao()
         sessionManager = UserSessionManager(requireContext())
 
+        // Connexion utilisateur
         binding.loginButton.setOnClickListener {
-            val username = binding.emailEditText.text.toString()
+            val username = binding.emailEditText.text.toString().trim()
             val password = binding.passwordEditText.text.toString()
 
-            if (username.isBlank() && password.isBlank()) {
+            if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(requireContext(), "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+
             viewLifecycleOwner.lifecycleScope.launch {
                 val user = dao.getUserByUsername(username)
                 if (user != null && user.password == password) {
@@ -52,11 +55,16 @@ class FragmentConnexion : Fragment() {
                     Toast.makeText(requireContext(), "Connexion réussie", Toast.LENGTH_SHORT).show()
                     findNavController().navigate(R.id.action_connexion_to_accueil)
                 } else {
-                    Toast.makeText(requireContext(), "Nom d'utilisateur ou mot de passe incorrect", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Nom d'utilisateur ou mot de passe incorrect",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
 
+        // Connexion en tant qu'invité
         binding.guestButton.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
                 sessionManager.saveUsername("guest")
@@ -64,6 +72,7 @@ class FragmentConnexion : Fragment() {
             }
         }
 
+        // Navigation vers l'inscription
         binding.registerButton.setOnClickListener {
             findNavController().navigate(R.id.action_connexion_to_inscription)
         }

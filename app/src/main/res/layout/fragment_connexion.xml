@@ -1,65 +1,125 @@
-<!-- res/layout/fragment_connexion.xml -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
     android:background="@drawable/background_gradient"
-    android:gravity="center">
+    android:fillViewport="true"
+    android:importantForAccessibility="yes">
 
-    <ImageView
-        android:id="@+id/logo_image"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:src="@drawable/ic_logo"
-        android:layout_marginBottom="32dp"
-        android:contentDescription="@string/app_name" />
-
-    <EditText
-        android:id="@+id/email_edit_text"
-        android:layout_width="350dp"
-        android:layout_height="60dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/rounded_edittext_background"
-        android:backgroundTint="@color/white"
-        android:hint="  Nom d'utilisateur"
-        android:textColor="@color/black" />
-
-    <EditText
-        android:id="@+id/password_edit_text"
-        android:layout_width="350dp"
-        android:layout_height="60dp"
-        android:layout_marginBottom="20dp"
-        android:background="@drawable/rounded_edittext_background"
-        android:backgroundTint="@color/white"
-        android:hint="  Mot de Passe"
-        android:inputType="textPassword"
-        android:textColor="@color/black" />
-
-    <Button
-        android:id="@+id/login_button"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="CONNEXION"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/teal_700"
-        android:layout_marginBottom="16dp" />
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp">
 
-    <Button
-        android:id="@+id/register_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="CRÉER UN COMPTE"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/teal_700"
-        android:layout_marginBottom="16dp" />
+        <!-- Logo -->
+        <ImageView
+            android:id="@+id/logo_image"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/ic_logo"
+            android:layout_marginBottom="32dp"
+            android:contentDescription="Logo de l'application BiblioScan" />
 
-    <Button
-        android:id="@+id/guest_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="ACCÈS EN TANT QU'INVITÉ(E)"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/teal_700" />
+        <!-- Champ Nom d'utilisateur -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="60dp"
+            android:background="@drawable/rounded_edittext_background"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
 
-</LinearLayout>
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_user"
+                app:tint="?attr/colorOnBackground"
+                android:contentDescription="Icône utilisateur"
+                android:importantForAccessibility="no" />
+
+            <EditText
+                android:id="@+id/email_edit_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Nom d'utilisateur"
+                android:background="@null"
+                android:paddingStart="12dp"
+                android:textColor="?attr/colorOnBackground"
+                android:textColorHint="?attr/colorOnBackground"
+                android:importantForAccessibility="yes"
+                android:contentDescription="Champ de saisie pour le nom d'utilisateur" />
+        </LinearLayout>
+
+        <!-- Champ Mot de passe -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="60dp"
+            android:background="@drawable/rounded_edittext_background"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_lock"
+                app:tint="?attr/colorOnBackground"
+                android:contentDescription="Icône mot de passe"
+                android:importantForAccessibility="no" />
+
+            <EditText
+                android:id="@+id/password_edit_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Mot de passe"
+                android:background="@null"
+                android:inputType="textPassword"
+                android:paddingStart="12dp"
+                android:textColor="?attr/colorOnBackground"
+                android:textColorHint="?attr/colorOnBackground"
+                android:importantForAccessibility="yes"
+                android:contentDescription="Champ de saisie pour le mot de passe" />
+        </LinearLayout>
+
+        <!-- Boutons -->
+        <Button
+            android:id="@+id/login_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Connexion"
+            android:textAllCaps="false"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="Se connecter" />
+
+        <Button
+            android:id="@+id/register_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Créer un compte"
+            android:textAllCaps="false"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="Créer un compte utilisateur" />
+
+        <Button
+            android:id="@+id/guest_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Accès invité"
+            android:textAllCaps="false"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary"
+            android:contentDescription="Utiliser l'application en tant qu'invité" />
+    </LinearLayout>
+</ScrollView>

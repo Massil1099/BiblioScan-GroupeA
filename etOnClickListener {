@@ -1,0 +1,78 @@
+*   [33m583b1f3[m[33m ([m[1;32mmerge-video-harouna[m[33m)[m Fusion video+traitement (pas optimal)
+[31m|[m[32m\[m  
+[31m|[m * [33me3ecb42[m[33m ([m[1;32mImages_feature_test[m[33m)[m harouna tests pretraitment , post-processing
+[31m|[m * [33m2d738d5[m[33m ([m[1;31morigin/Images_feature[m[33m)[m  Prétraitement et post OCR à tester
+[31m|[m * [33mbcef29d[m Revert to a4c3402 (stable version for team sync)
+* [32m|[m [33mb567a5d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmerge-video-ui[m[33m, [m[1;31morigin/VideoBookRecognition[m[33m, [m[1;32mVideoBookRecognition[m[33m)[m Amelioration de la requete de recherche en passant de la recherche a partir de tous les details du livre au titre du livre seulement
+* [32m|[m [33m4b457d9[m Amelioration de la verification de doublons (un livre sera dans tous les cas pris qu'une seule fois (distance leveshtein pour la comparaison de chaine de texte extraite par OCR)
+* [32m|[m [33m592fb08[m Ajout de la verification et suppression de doublons (pour un livre dans plusieurs frames)
+* [32m|[m [33m01be4ba[m Application de l'OCR et affichage de la liste des livres (pas encore la suppression de doublons)
+* [32m|[m [33mcf57c70[m Application du modele YOLO a chaque frame de la video (500ms) et affichage des bounding boxes
+* [32m|[m [33m664af42[m Enregistrement d'une video avec sauvegarde et affichage de cette video
+* [32m|[m [33me039319[m[33m ([m[1;32mBackend_feature[m[33m)[m Revert to content of commit a4c3402
+[32m|[m [32m|[m * [33m66c0bc0[m[33m ([m[1;31morigin/UI_feature[m[33m)[m Quelques modifs dans  : Ajout d'un tutoriel dans le fragment d'accueil et adaptation du tutoriel au deux modes de l'applications
+[32m|[m [32m|[m * [33mc34f12a[m Ajout d'un tutoriel dans le fragment d'accueil et adaptation du tutoriel au deux modes de l'applications
+[32m|[m [32m|[m * [33m935c5ac[m  Ajout de tri et filtres dans les fragments ( liste,favoris et historiqueÃ) + quelques ameliorations des modes de l'appli
+[32m|[m [32m|[m * [33m8f87b52[m Amélioration des modes sombre/clair
+[32m|[m [32m|[m * [33m728df74[m Amjout du mode sombre/clair et quelques accessibilités
+[32m|[m [32m|[m[32m/[m  
+[32m|[m [32m|[m * [33m4333d36[m[33m ([m[1;31morigin/NER_Model+SemantiqueMatching_PasOptimal[m[33m, [m[1;32mNER_Model+SemantiqueMatching_PasOptimal[m[33m)[m Ce n'est pas une bonne version pour l'instant mais elle implemente correctement le modele NER pour la reconnaissance de l'auteur + le matching semantique des titres des livres
+[32m|[m [32m|[m[32m/[m  
+[32m|[m[32m/[m[32m|[m   
+* [32m|[m [33mb06f018[m[33m ([m[1;31morigin/Backend_feature[m[33m)[m implementation d'un modele bert NER pour la reconnaissance d'entites (person) donc l'auteur du texte a partir du texte
+[32m|[m[32m/[m  
+[32m|[m * [33mc18c291[m[33m ([m[1;31morigin/plusieures-editions-pour-le-livre[m[33m, [m[1;32mplusieures-editions-pour-le-livre[m[33m)[m Ajout des fonctionnalités pour plusieurs éditions du livre
+[32m|[m[32m/[m  
+* [33ma4c3402[m Affichage de plus de details sur le livre( +editeur,date de publication,nbr de pages,categorie,langue,isbn,note,nbr d'avis)
+* [33m4e18352[m[33m ([m[1;32ma[m[33m, [m[1;32mUI_feature[m[33m)[m Ajout de Check des textes avant la e résultat du scan
+[35m|[m * [33m46c488d[m[33m ([m[1;32mImages_feature[m[33m)[m MAJ du package imageProcessing
+[35m|[m *   [33m2dcc834[m Merge branch 'refs/heads/Backend_feature' into Images_feature
+[35m|[m [1;31m|[m[35m\[m  
+[35m|[m [1;31m|[m[35m/[m  
+[35m|[m[35m/[m[1;31m|[m   
+* [1;31m|[m [33m1746cad[m Ajout de la fonctionnalité Historique et la fonctionnalité Favoris pour les utilisateurs sauvegardés
+* [1;31m|[m   [33m2eceaaa[m Fusion Backend_feature avec UI_feature et résolution des conflits
+[1;33m|[m[1;34m\[m [1;31m\[m  
+* [1;34m|[m [1;31m|[m [33mb8f2fbf[m Ajout d'une base de donnée locale pour Utilisateurs, Favoris, et Historique
+* [1;34m|[m [1;31m|[m [33m9474b85[m Ajout de l'utilisation des coroutines et affichage de l'image prÃrétraitée
+[1;34m|[m [1;34m|[m * [33mfcac7e2[m Ajout de commentaires
+[1;34m|[m [1;34m|[m * [33m0c2156b[m Modifaction de la fonction classifyBookText
+[1;34m|[m [1;34m|[m *   [33m7e8358a[m Résolution des conflits du merge avec UI_feature
+[1;34m|[m [1;34m|[m [1;35m|[m[1;34m\[m  
+[1;34m|[m [1;34m|[m [1;35m|[m[1;34m/[m  
+[1;34m|[m [1;34m|[m[1;34m/[m[1;35m|[m   
+[1;34m|[m * [1;35m|[m [33mac7d5f1[m Ajout de fragment d'inscription et d'affichage en temps réel avec des descriptions
+[1;34m|[m * [1;35m|[m [33m60ef39c[m Ajout de l'utilisation des coroutines et affichage de l'image prÃrétraitée
+[1;34m|[m[1;34m/[m [1;35m/[m  
+[1;34m|[m * [33md42535e[m Ajout de la fonction classifyBookText : pour classifier les textes en titre et auteur - MAJ de FragmentCamera.kt : OCR sur les zones detectees - Ajout de la fonction preprocessImage : pour prétraitement de l'image (grayscale)
+[1;34m|[m[1;34m/[m  
+* [33mb367608[m Ajout de: Recuperation de la description des livres et l'image du livre
+* [33mb02afa7[m Integration de la Lecture du modele tflite et detection MLKit fonctionnelle(capture image et pas encore de temps reel)
+* [33mb31ab54[m[33m ([m[1;31morigin/main[m[33m)[m Sauvegarde des modifications avant changement de branche
+* [33mc767fcc[m Amélioration de l'interface: ajout de boutons de navigation et de fragments d'historique et favoris
+* [33m3af4b28[m[33m ([m[1;32mmain[m[33m)[m Integration de l'API GoogleBooks au backend et architecture de base pour le main
+* [33m2c8f39c[m Resolution conflits et architecture de base pour l'appli backend/frontend séparés
+* [33m496ce8e[m Fusion des fichiers .idea/gradle.xml, .idea/misc.xml et .idea/vcs.xml entre les branches Backend_feature et UI_feature
+*   [33m7e2162c[m Merge branch 'UI_feature' into Backend_feature Merge de UI dans Backend
+[31m|[m[32m\[m  
+[31m|[m * [33m7b4e404[m Ajout de fragments dans l'application
+[31m|[m * [33mc9793c5[m Quelques améliorations dans l'interface utilisateur et ajout de l'enregistrement des images capturés par la caméra
+[31m|[m * [33m4cf7731[m Ajout de CameraX et implementation de l'interface utilisateur
+[31m|[m * [33ma254095[m Ajout de CameraX dans UI_feature
+[31m|[m *   [33m30d66b2[m Initial commit: nouveau projet Android
+[31m|[m [33m|[m[34m\[m  
+[31m|[m [33m|[m * [33m0f0dab0[m Update README.md
+[31m|[m [33m|[m * [33m50efd92[m Update README.md
+[31m|[m * [34m|[m [33me22340a[m Initial commit: nouveau projet Android
+[31m|[m  [34m/[m  
+[31m|[m [34m|[m * [33mf1ebb0f[m[33m ([m[1;35mrefs/stash[m[33m)[m On Backend_feature: Sauvegarde avant merge UI_feature
+[31m|[m [34m|[m[31m/[m[36m|[m 
+[31m|[m[31m/[m[34m|[m [36m|[m 
+[31m|[m [34m|[m * [33m1b60034[m index on Backend_feature: 7c55d07 Merge UI_feature fragments into Backend_feature
+[31m|[m [34m|[m[31m/[m  
+[31m|[m[31m/[m[34m|[m   
+* [34m|[m [33m7c55d07[m Merge UI_feature fragments into Backend_feature
+* [34m|[m [33m74f6318[m implémentation d'un premier modele backend Ktor avec API scan
+[34m|[m[34m/[m  
+* [33m3ada32f[m[33m ([m[1;31morigin/develop[m[33m)[m Initial commit
+* [33m19edb5b[m[33m ([m[1;32mmaster[m[33m)[m Initial commit

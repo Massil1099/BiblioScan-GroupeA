@@ -19,7 +19,6 @@ class FragmentInscription : Fragment() {
 
     private var _binding: FragmentInscriptionBinding? = null
     private val binding get() = _binding!!
-
     private lateinit var dao: BiblioScanDao
 
     override fun onCreateView(
@@ -33,7 +32,6 @@ class FragmentInscription : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Récupération du DAO
         dao = AppDatabase.getDatabase(requireContext()).biblioScanDao()
 
         binding.registerButton.setOnClickListener {
@@ -45,7 +43,6 @@ class FragmentInscription : Fragment() {
                 return@setOnClickListener
             }
 
-            // Lancement de la coroutine Room
             viewLifecycleOwner.lifecycleScope.launch {
                 val existingUser = dao.getUserByUsername(username)
                 if (existingUser != null) {
@@ -55,7 +52,6 @@ class FragmentInscription : Fragment() {
                     dao.insertUser(user)
                     Log.d("Inscription", "Utilisateur inséré : $user")
 
-                    // On recupere tous les utilisateurs
                     val allUsers = dao.getAllUsers()
                     Log.d("Inscription", "Tous les utilisateurs en base : $allUsers")
 
@@ -63,7 +59,6 @@ class FragmentInscription : Fragment() {
                     findNavController().popBackStack()
                 }
             }
-
         }
 
         binding.goBackButton.setOnClickListener {

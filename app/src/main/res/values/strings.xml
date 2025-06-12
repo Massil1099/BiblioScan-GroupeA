@@ -1,6 +1,7 @@
 <resources>
-
     <string name="app_name">BiblioScan</string>
-    <string name="book_image">image_du_livre</string>
-    <string name="capture_button">capture_bouton</string>
+    <string name="settings">Paramètres</string>
+    <string name="dark_mode">Mode sombre</string>
+    <string name="restart_tutorial">Relancer le tutoriel</string>
+    <string name="back">Retour</string>
 </resources>

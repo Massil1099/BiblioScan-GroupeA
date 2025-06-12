@@ -1,4 +1,3 @@
-<!-- res/layout/fragment_accueil.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -7,16 +6,32 @@
     android:background="@drawable/background_gradient"
     android:padding="16dp">
 
-    <!-- Toolbar -->
+    <!-- Toolbar modernisée avec icône paramètres -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_accueil"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/teal_700"
+        android:background="?attr/colorPrimary"
         app:title="BIBLIOSCAN"
-        app:titleTextColor="@android:color/white" />
+        app:titleTextColor="?attr/colorOnPrimary"
+        app:titleMarginStart="16dp"
+        app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light">
 
-    <!-- Menu Container -->
+        <ImageButton
+            android:id="@+id/settings_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_settings"
+            android:contentDescription="Ouvrir les paramètres"
+            android:layout_gravity="end"
+            android:padding="8dp"
+            android:focusable="true"
+            app:tint="?attr/colorOnPrimary" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <!-- Menu principal -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -25,118 +40,49 @@
         android:gravity="center"
         android:padding="24dp">
 
-        <!-- CardView Historique -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/history_button"
+            style="@style/BiblioScan.Button.Filled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
-            app:cardBackgroundColor="@color/teal_700"
-            app:cardUseCompatPadding="true"
-            android:clickable="true"
-            android:focusable="true">
+            android:text="Historique"
+            android:contentDescription="Accéder à l'historique des détections"
+            android:focusable="true"
+            app:icon="@drawable/ic_history"
+            app:iconTint="?attr/colorOnPrimary"
+            app:iconGravity="textStart"
+            app:iconPadding="12dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="16dp">
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/ic_history"
-                    android:layout_marginEnd="16dp"
-                    app:tint="@android:color/white" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Historique"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- CardView Favoris -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/favorites_button"
+            style="@style/BiblioScan.Button.Filled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
-            app:cardBackgroundColor="@color/teal_700"
-            app:cardUseCompatPadding="true"
-            android:clickable="true"
-            android:focusable="true">
+            android:text="Favoris"
+            android:contentDescription="Voir les livres ajoutés en favoris"
+            android:focusable="true"
+            app:icon="@drawable/ic_favorite"
+            app:iconTint="?attr/colorOnPrimary"
+            app:iconGravity="textStart"
+            app:iconPadding="12dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="16dp">
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/ic_favorite"
-                    android:layout_marginEnd="16dp"
-                    app:tint="@android:color/white" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Favoris"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- CardView Authentification -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/auth_button"
+            style="@style/BiblioScan.Button.Filled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
-            app:cardBackgroundColor="@color/teal_700"
-            app:cardUseCompatPadding="true"
-            android:clickable="true"
-            android:focusable="true">
+            android:text="Authentification / Déconnexion"
+            android:contentDescription="Gérer votre authentification"
+            android:focusable="true"
+            app:icon="@drawable/ic_auth"
+            app:iconTint="?attr/colorOnPrimary"
+            app:iconGravity="textStart"
+            app:iconPadding="2dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="16dp">
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/ic_auth"
-                    android:layout_marginEnd="16dp"
-                    app:tint="@android:color/white" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Authentification"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- CardView Caméra -->
+        <!-- Bouton Commençons stylisé comme une CardView -->
         <androidx.cardview.widget.CardView
             android:id="@+id/camera_button"
             android:layout_width="match_parent"
@@ -172,6 +118,33 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-    </LinearLayout>
+        <!-- Bouton Prendre une vidéo -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/btnPrendreVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="@color/teal_700"
+            app:cardUseCompatPadding="true"
+            android:clickable="true"
+            android:focusable="true">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Prendre une vidéo"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
 </LinearLayout>

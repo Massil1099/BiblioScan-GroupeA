@@ -1,9 +1,9 @@
 package com.example.biblioscan.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -12,11 +12,11 @@ import com.example.biblioscan.Book
 import com.example.biblioscan.DetectedBookAdapter
 import com.example.biblioscan.R
 import com.example.biblioscan.backend.searchBooksFromTitles
-import com.example.biblioscan.databinding.FragmentListeBinding
-import com.example.biblioscan.ImageProcessing.DetectionResult
 import com.example.biblioscan.data_app.AppDatabase
 import com.example.biblioscan.data_app.BookEntity
 import com.example.biblioscan.data_app.HistoryEntity
+import com.example.biblioscan.databinding.FragmentListeBinding
+import com.example.biblioscan.imageProcessing.DetectionResult
 import com.example.biblioscan.session.UserSessionManager
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -30,6 +30,8 @@ class FragmentListe : Fragment() {
     private var capturedImagePath: String? = null
     private var detectionResults: ArrayList<DetectionResult> = arrayListOf()
     private var detectedTexts: List<String> = emptyList()
+    private var allBooks: List<Book> = emptyList()
+    private var currentSort = "Plus récent"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,8 +70,22 @@ class FragmentListe : Fragment() {
             findNavController().navigate(R.id.action_liste_to_watchBooksDetection, bundle)
         }
 
+        setupSortSpinner()
         loadDetectedBooks()
         return binding.root
+    }
+
+    private fun setupSortSpinner() {
+        val options = listOf("Plus récent", "Titre A-Z", "Titre Z-A")
+        val adapterSpinner = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, options)
+        adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.sortSpinner.adapter = adapterSpinner
+
+        binding.sortSpinner.setSelection(0)
+        binding.sortSpinner.setOnItemSelectedListener { _, _, position, _ ->
+            currentSort = options[position]
+            applySorting()
+        }
     }
 
     private fun loadDetectedBooks() {
@@ -82,17 +98,9 @@ class FragmentListe : Fragment() {
         lifecycleScope.launch {
             try {
                 val books = searchBooksFromTitles(detectedTexts)
-                if (books.isEmpty()) {
-                    binding.emptyContainer.visibility = View.VISIBLE
-                    binding.detectedBooksRecyclerView.visibility = View.GONE
-                } else {
-                    binding.emptyContainer.visibility = View.GONE
-                    binding.detectedBooksRecyclerView.visibility = View.VISIBLE
-                    adapter.submitList(books)
-
-                    // ➕ AJOUT À L'HISTORIQUE
-                    saveBooksToHistory(books)
-                }
+                allBooks = books
+                applySorting()
+                saveBooksToHistory(books)
             } catch (e: Exception) {
                 e.printStackTrace()
                 val fallbackBooks = detectedTexts.map {
@@ -111,24 +119,39 @@ class FragmentListe : Fragment() {
                         ratingsCount = 0
                     )
                 }
-
-                adapter.submitList(fallbackBooks)
-
-                // Même pour fallback :
+                allBooks = fallbackBooks
+                applySorting()
                 saveBooksToHistory(fallbackBooks)
             }
         }
     }
+
+    private fun applySorting() {
+        val sortedList = when (currentSort) {
+            "Titre A-Z" -> allBooks.sortedBy { it.title }
+            "Titre Z-A" -> allBooks.sortedByDescending { it.title }
+            else -> allBooks
+        }
+
+        if (sortedList.isEmpty()) {
+            binding.emptyContainer.visibility = View.VISIBLE
+            binding.detectedBooksRecyclerView.visibility = View.GONE
+        } else {
+            binding.emptyContainer.visibility = View.GONE
+            binding.detectedBooksRecyclerView.visibility = View.VISIBLE
+        }
+
+        adapter.submitList(sortedList)
+    }
+
     private suspend fun saveBooksToHistory(books: List<Book>) {
         val sessionManager = UserSessionManager(requireContext())
-        val username = sessionManager.getUsername().firstOrNull()
-
-        if (username.isNullOrEmpty() || username == "guest") return
+        val username = sessionManager.getUsername().firstOrNull() ?: return
+        if (username == "guest") return
 
         val dao = AppDatabase.getDatabase(requireContext()).biblioScanDao()
 
         for (book in books) {
-            // Sauvegarde du livre s'il n'est pas déjà dans la table "books"
             val bookEntity = BookEntity(
                 title = book.title,
                 author = book.author ?: "Auteur inconnu",
@@ -137,16 +160,23 @@ class FragmentListe : Fragment() {
             )
             dao.insertBook(bookEntity)
 
-            // Enregistrement dans l'historique
             val history = HistoryEntity(username = username, bookTitle = book.title)
             dao.addHistory(history)
         }
     }
 
-
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun Spinner.setOnItemSelectedListener(listener: (adapter: Spinner, view: View?, position: Int, id: Long) -> Unit) {
+        this.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
+                listener(this@setOnItemSelectedListener, view, position, id)
+            }
+
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
+        }
     }
 }

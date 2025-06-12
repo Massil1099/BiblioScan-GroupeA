@@ -1,0 +1,159 @@
+[33mcommit 4e18352e000158a432c6036d8b6d74d0e32d3b31[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mUI_feature[m[33m, [m[1;31morigin/UI_feature[m[33m)[m
+Author: Oussama <odahri06@gmail.com>
+Date:   Tue May 27 00:36:33 2025 +0200
+
+    Ajout de Check des textes avant la e résultat du scan
+
+[33mcommit 1746cad94187bcdbbd42ae21639f82807f18da43[m[33m ([m[1;31morigin/Backend_feature[m[33m)[m
+Author: MASSIL <massilaitchallal2002@gmail.com>
+Date:   Sun May 25 19:32:15 2025 +0200
+
+    Ajout de la fonctionnalité Historique et la fonctionnalité Favoris pour les utilisateurs sauvegardés
+
+[33mcommit 2eceaaa147b755d4cf968528065c6299eb04abe2[m
+Merge: b8f2fbf ac7d5f1
+Author: MASSIL <massilaitchallal2002@gmail.com>
+Date:   Thu May 22 17:07:13 2025 +0200
+
+    Fusion Backend_feature avec UI_feature et résolution des conflits
+
+[33mcommit b8f2fbfc150b473cf36c17640d5d41fd8211d236[m
+Author: MASSIL <massilaitchallal2002@gmail.com>
+Date:   Thu May 22 16:46:45 2025 +0200
+
+    Ajout d'une base de donnée locale pour Utilisateurs, Favoris, et Historique
+
+[33mcommit ac7d5f16337be11856bda311577151fbaa6b55bc[m
+Author: Oussama <odahri06@gmail.com>
+Date:   Thu May 22 16:18:37 2025 +0200
+
+    Ajout de fragment d'inscription et d'affichage en temps réel avec des descriptions
+
+[33mcommit 9474b852b3defb607e79c3d907b7c8992d237c07[m
+Author: Oussama <odahri06@gmail.com>
+Date:   Thu May 22 11:39:44 2025 +0200
+
+    Ajout de l'utilisation des coroutines et affichage de l'image prÃrétraitée
+
+[33mcommit 60ef39cb0d7624106a3d41049ae2420a66930701[m
+Author: Oussama <odahri06@gmail.com>
+Date:   Thu May 22 11:39:44 2025 +0200
+
+    Ajout de l'utilisation des coroutines et affichage de l'image prÃrétraitée
+
+[33mcommit b36760812b296805d3061fda7ff992f2142ff976[m
+Author: MASSIL <massilaitchallal2002@gmail.com>
+Date:   Mon May 19 03:52:19 2025 +0200
+
+    Ajout de: Recuperation de la description des livres et l'image du livre
+
+[33mcommit b02afa7a0d2e2447dbbf0bdbfbf1361e2cc8496f[m
+Author: MASSIL <massilaitchallal2002@gmail.com>
+Date:   Fri May 16 02:38:23 2025 +0200
+
+    Integration de la Lecture du modele tflite et detection MLKit fonctionnelle(capture image et pas encore de temps reel)
+
+[33mcommit b31ab54cc25584d8934b2e583c8e44732db4816a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Oussama <odahri06@gmail.com>
+Date:   Thu May 15 16:41:45 2025 +0200
+
+    Sauvegarde des modifications avant changement de branche
+
+[33mcommit c767fcc456bf8eb0b2a2244200bae9caf21a5c98[m
+Author: Oussama <odahri06@gmail.com>
+Date:   Thu May 15 16:36:32 2025 +0200
+
+    Amélioration de l'interface: ajout de boutons de navigation et de fragments d'historique et favoris
+
+[33mcommit 3af4b2876735b57340a8eec203db82db28ff0759[m
+Author: MASSIL <massilaitchallal2002@gmail.com>
+Date:   Mon May 12 18:31:59 2025 +0200
+
+    Integration de l'API GoogleBooks au backend et architecture de base pour le main
+
+[33mcommit 2c8f39c9e2c3421b9616b5e97c2b8ea6a041f9ab[m
+Author: MASSIL <massilaitchallal2002@gmail.com>
+Date:   Fri May 9 15:37:03 2025 +0200
+
+    Resolution conflits et architecture de base pour l'appli backend/frontend séparés
+
+[33mcommit 496ce8e243cd4c1d731eed994200921cc0bfa033[m
+Author: MASSIL <massilaitchallal2002@gmail.com>
+Date:   Fri May 9 12:49:05 2025 +0200
+
+    Fusion des fichiers .idea/gradle.xml, .idea/misc.xml et .idea/vcs.xml entre les branches Backend_feature et UI_feature
+
+[33mcommit 7e2162c766c122fd6b1e6864fef61859edc5b729[m
+Merge: 7c55d07 7b4e404
+Author: MASSIL <massilaitchallal2002@gmail.com>
+Date:   Fri May 9 12:35:14 2025 +0200
+
+    Merge branch 'UI_feature' into Backend_feature
+    Merge de UI dans Backend
+
+[33mcommit 7c55d07fee1ca65b59b02a1046cfae77a94627d2[m
+Author: MASSIL <massilaitchallal2002@gmail.com>
+Date:   Fri May 9 11:44:15 2025 +0200
+
+    Merge UI_feature fragments into Backend_feature
+
+[33mcommit 7b4e404875f288bbee44d2c472eff01cc8145d18[m
+Author: Oussama <odahri06@gmail.com>
+Date:   Wed May 7 15:48:43 2025 +0200
+
+    Ajout de fragments dans l'application
+
+[33mcommit c9793c52f9b8d268b1fdf3be76fa701b198ba475[m
+Author: Oussama <odahri06@gmail.com>
+Date:   Tue May 6 17:00:53 2025 +0200
+
+    Quelques améliorations dans l'interface utilisateur et ajout de l'enregistrement des images capturés par la caméra
+
+[33mcommit 4cf773193d5e88d9683dd484cdc0cfc70f555365[m
+Author: Oussama <odahri06@gmail.com>
+Date:   Tue May 6 14:07:46 2025 +0200
+
+    Ajout de CameraX et implementation de l'interface utilisateur
+
+[33mcommit a254095af609220eaf44a4a188931ff40d394975[m
+Author: Oussama <odahri06@gmail.com>
+Date:   Tue May 6 12:31:56 2025 +0200
+
+    Ajout de CameraX dans UI_feature
+
+[33mcommit 74f6318c642b662a20a48ee04ad6caab06afa955[m
+Author: MASSIL <massilaitchallal2002@gmail.com>
+Date:   Tue May 6 11:21:47 2025 +0200
+
+    implémentation d'un premier modele backend Ktor avec API scan
+
+[33mcommit 30d66b2a7cde37529cc85b6626b557600a1d48ce[m
+Merge: e22340a 0f0dab0
+Author: Oussama <odahri06@gmail.com>
+Date:   Mon May 5 11:17:03 2025 +0200
+
+    Initial commit: nouveau projet Android
+
+[33mcommit e22340af756b692784c88add2be5c94e95e5b73f[m
+Author: Oussama <odahri06@gmail.com>
+Date:   Mon May 5 11:11:57 2025 +0200
+
+    Initial commit: nouveau projet Android
+
+[33mcommit 0f0dab05e0fb18bc86afd002f32cbec6d9bf2ea3[m
+Author: Roune-Ng <niang.harouna@yahoo.com>
+Date:   Wed Apr 30 12:32:30 2025 +0200
+
+    Update README.md
+
+[33mcommit 50efd922c72687f57f5e271828bf3e47e6d1c905[m
+Author: Roune-Ng <niang.harouna@yahoo.com>
+Date:   Wed Apr 30 12:30:09 2025 +0200
+
+    Update README.md
+
+[33mcommit 3ada32f9f1a17729c53c9511a1801e6a36106f81[m[33m ([m[1;31morigin/develop[m[33m, [m[1;31morigin/Images_feature[m[33m)[m
+Author: Massil Ait challal <massilaitchallal2002@gmail.com>
+Date:   Tue Apr 29 12:37:11 2025 +0000
+
+    Initial commit

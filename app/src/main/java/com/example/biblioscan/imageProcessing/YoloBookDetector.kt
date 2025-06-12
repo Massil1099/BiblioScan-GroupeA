@@ -1,4 +1,4 @@
-package com.example.biblioscan.ImageProcessing
+package com.example.biblioscan.imageProcessing
 
 
 import android.content.Context
@@ -9,6 +9,7 @@ import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import androidx.core.graphics.scale
 
 class YoloBookDetector(context: Context) {
 
@@ -24,7 +25,7 @@ class YoloBookDetector(context: Context) {
     }
 
     fun detect(bitmap: Bitmap): List<DetectionResult> {
-        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, inputSize, inputSize, false)
+        val resizedBitmap = bitmap.scale(inputSize, inputSize, false)
         val input = bitmapToFloatBuffer(resizedBitmap)
 
         val output = Array(1) { Array(5) { FloatArray(8400) } }
@@ -78,15 +79,6 @@ class YoloBookDetector(context: Context) {
 
         return byteBuffer
     }
-
-
-
-
-
-
-
-
-
 
     // NMS
     private fun applyNMS(
