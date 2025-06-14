@@ -110,16 +110,24 @@ class FragmentCamera : Fragment() {
                         val bitmap = withContext(Dispatchers.IO) {
                             BitmapFactory.decodeFile(photoFile.absolutePath)
                         }
+                        // demarrer compteur pour calculer le temps d'un traitement
+                        val startTime = System.currentTimeMillis()
+                        val yoloStart = System.currentTimeMillis()
 
                         val detector = YoloBookDetector(requireContext())
                         val detections = detector.detect(bitmap)
+                        val yoloEnd = System.currentTimeMillis()
+                        val yoloDuration = yoloEnd - yoloStart
 
                         if (detections.isEmpty()) {
                             Log.d("CameraXApp", "Aucun livre détecté")
                             return@launch
                         }
 
+                        val ocrStart = System.currentTimeMillis()
                         val detectionResults = extractTextFromBoundingBoxes(bitmap, detections)
+                        val ocrEnd = System.currentTimeMillis()
+                        val ocrDuration = ocrEnd - ocrStart
                         val annotated = drawBoundingBoxes(bitmap, detectionResults)
 
                         val processedFile = File(imageDir, "processed_$timeStamp.jpg")
@@ -135,7 +143,12 @@ class FragmentCamera : Fragment() {
                             putStringArrayList(
                                 "detectedTexts",
                                 ArrayList(detectionResults.map { it.label })
+
                             )
+                            putLong("processingStartTime", startTime)
+                            putLong("yoloDuration", yoloDuration)
+                            putLong("ocrDuration", ocrDuration)
+
                         }
 
                         findNavController().navigate(R.id.action_camera_to_liste, bundle)

@@ -1,6 +1,7 @@
 package com.example.biblioscan.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.Spinner
@@ -32,6 +33,9 @@ class FragmentListe : Fragment() {
     private var detectedTexts: List<String> = emptyList()
     private var allBooks: List<Book> = emptyList()
     private var currentSort = "Plus récent"
+    private var processingStartTime: Long = 0
+    private var yoloDuration: Long = 0
+    private var ocrDuration: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +43,9 @@ class FragmentListe : Fragment() {
             capturedImagePath = it.getString("capturedImagePath")
             detectionResults = it.getParcelableArrayList("detectionResults") ?: arrayListOf()
             detectedTexts = it.getStringArrayList("detectedTexts") ?: emptyList()
+            processingStartTime = it.getLong("processingStartTime", 0)
+            yoloDuration = it.getLong("yoloDuration", 0)
+            ocrDuration = it.getLong("ocrDuration", 0)
         }
     }
 
@@ -97,9 +104,25 @@ class FragmentListe : Fragment() {
 
         lifecycleScope.launch {
             try {
+                val apiStart = System.currentTimeMillis()
                 val books = searchBooksFromTitles(detectedTexts)
                 allBooks = books
+                val apiEnd = System.currentTimeMillis()
+                val apiDuration = apiEnd - apiStart
+
                 applySorting()
+                val processingEndTime = System.currentTimeMillis()
+                val totalDuration = processingEndTime - processingStartTime
+
+                val durationMs = processingEndTime - processingStartTime
+                Log.d("PERF_PHOTO", """
+                   Performance détection :
+                  - YOLO          : ${yoloDuration} ms
+                  - OCR           : ${ocrDuration} ms
+                  - GoogleBooksAPI: ${apiDuration} ms
+                  - TOTAL         : ${totalDuration} ms
+                """.trimIndent())
+
                 saveBooksToHistory(books)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -121,6 +144,7 @@ class FragmentListe : Fragment() {
                 }
                 allBooks = fallbackBooks
                 applySorting()
+
                 saveBooksToHistory(fallbackBooks)
             }
         }

@@ -9,87 +9,88 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.*
-suspend fun searchBooksFromTitles(titles: List<String>): List<Book> = withContext(Dispatchers.IO) {
+
+object HttpClientProvider {
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json()
         }
     }
+}
+suspend fun searchBooksFromTitles(titles: List<String>): List<Book> = withContext(Dispatchers.IO) {
+    val client = HttpClientProvider.client
 
-    val results = mutableListOf<Book>()
+    val results = coroutineScope {
+        titles.mapNotNull { rawTitle ->
+            async {
+                val title = normalizeTitleForSearch(rawTitle)
+                if (title.isEmpty()) return@async null
 
-    for (rawTitle in titles) {
-        val title = normalizeTitleForSearch(rawTitle)
-        if (title.isEmpty()) continue
+                try {
+                    val query = "intitle:\"$title\""
 
-        try {
-            val query = "intitle:\"$title\""
+                    val response: JsonObject = client.get("https://www.googleapis.com/books/v1/volumes") {
+                        parameter("q", query)
+                        parameter("maxResults", 5)
+                        accept(ContentType.Application.Json)
+                    }.body()
 
-            val response: JsonObject = client.get("https://www.googleapis.com/books/v1/volumes") {
-                parameter("q", query)
-                parameter("maxResults", 5)  // Prendre plusieurs pour filtrer ensuite
-                accept(ContentType.Application.Json)
-            }.body()
+                    val items = response["items"]?.jsonArray ?: return@async null
 
-            val items = response["items"]?.jsonArray ?: continue
+                    val bestItem = items.map { it.jsonObject }
+                        .minByOrNull {
+                            val googleTitle = it["volumeInfo"]?.jsonObject?.get("title")?.jsonPrimitive?.content ?: ""
+                            levenshteinDistance(normalizeTitleForSearch(googleTitle), title)
+                        } ?: return@async null
 
-            // Choisir le meilleur résultat selon la similarité
-            val bestItem = items.map { it.jsonObject }
-                .minByOrNull {
-                    val googleTitle = it["volumeInfo"]?.jsonObject?.get("title")?.jsonPrimitive?.content ?: ""
-                    levenshteinDistance(normalizeTitleForSearch(googleTitle), title)
+                    val volumeInfo = bestItem["volumeInfo"]?.jsonObject ?: return@async null
+                    val imageLinks = volumeInfo["imageLinks"]?.jsonObject
+                    val rawUrl = imageLinks?.get("large")?.jsonPrimitive?.content
+                        ?: imageLinks?.get("medium")?.jsonPrimitive?.content
+                        ?: imageLinks?.get("thumbnail")?.jsonPrimitive?.content
+                    val secureImageUrl = rawUrl?.replace("http://", "https://")
+
+                    val categories = volumeInfo["categories"]?.jsonArray?.map { it.jsonPrimitive.content }
+
+                    val isbn13 = volumeInfo["industryIdentifiers"]?.jsonArray
+                        ?.firstOrNull {
+                            it.jsonObject["type"]?.jsonPrimitive?.content == "ISBN_13"
+                        }?.jsonObject?.get("identifier")?.jsonPrimitive?.content
+
+                    val averageRating = volumeInfo["averageRating"]?.jsonPrimitive?.doubleOrNull
+                    val ratingsCount = volumeInfo["ratingsCount"]?.jsonPrimitive?.intOrNull
+
+                    Book(
+                        title = volumeInfo["title"]?.jsonPrimitive?.content ?: "Sans titre",
+                        author = volumeInfo["authors"]?.jsonArray
+                            ?.joinToString(", ") { it.jsonPrimitive.content } ?: "Auteur inconnu",
+                        description = volumeInfo["description"]?.jsonPrimitive?.content ?: "Pas de description",
+                        imageUrl = secureImageUrl,
+                        publisher = volumeInfo["publisher"]?.jsonPrimitive?.content,
+                        publishedDate = volumeInfo["publishedDate"]?.jsonPrimitive?.content,
+                        pageCount = volumeInfo["pageCount"]?.jsonPrimitive?.intOrNull,
+                        categories = categories,
+                        language = volumeInfo["language"]?.jsonPrimitive?.content,
+                        isbn13 = isbn13,
+                        averageRating = averageRating,
+                        ratingsCount = ratingsCount
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
                 }
-
-            if (bestItem != null) {
-                val volumeInfo = bestItem["volumeInfo"]?.jsonObject ?: continue
-
-                val imageLinks = volumeInfo["imageLinks"]?.jsonObject
-                val rawUrl = when {
-                    imageLinks?.get("large") != null -> imageLinks["large"]!!.jsonPrimitive.content
-                    imageLinks?.get("medium") != null -> imageLinks["medium"]!!.jsonPrimitive.content
-                    imageLinks?.get("thumbnail") != null -> imageLinks["thumbnail"]!!.jsonPrimitive.content
-                    else -> null
-                }
-                val secureImageUrl = rawUrl?.replace("http://", "https://")
-
-                val categories = volumeInfo["categories"]?.jsonArray?.map { it.jsonPrimitive.content }
-
-                val isbn13 = volumeInfo["industryIdentifiers"]?.jsonArray
-                    ?.firstOrNull {
-                        it.jsonObject["type"]?.jsonPrimitive?.content == "ISBN_13"
-                    }?.jsonObject?.get("identifier")?.jsonPrimitive?.content
-
-                val averageRating = volumeInfo["averageRating"]?.jsonPrimitive?.doubleOrNull
-                val ratingsCount = volumeInfo["ratingsCount"]?.jsonPrimitive?.intOrNull
-
-                val book = Book(
-                    title = volumeInfo["title"]?.jsonPrimitive?.content ?: "Sans titre",
-                    author = volumeInfo["authors"]?.jsonArray
-                        ?.joinToString(", ") { it.jsonPrimitive.content } ?: "Auteur inconnu",
-                    description = volumeInfo["description"]?.jsonPrimitive?.content ?: "Pas de description",
-                    imageUrl = secureImageUrl,
-                    publisher = volumeInfo["publisher"]?.jsonPrimitive?.content,
-                    publishedDate = volumeInfo["publishedDate"]?.jsonPrimitive?.content,
-                    pageCount = volumeInfo["pageCount"]?.jsonPrimitive?.intOrNull,
-                    categories = categories,
-                    language = volumeInfo["language"]?.jsonPrimitive?.content,
-                    isbn13 = isbn13,
-                    averageRating = averageRating,
-                    ratingsCount = ratingsCount
-                )
-                results.add(book)
             }
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        }.awaitAll().filterNotNull()
     }
 
-    client.close()
     return@withContext results
 }
+
 
 fun normalizeTitleForSearch(title: String): String {
     return title.lowercase()
