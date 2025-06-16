@@ -45,10 +45,22 @@ class FragmentAccueil : Fragment() {
 
             setupNavigation()
 
-            // Toujours afficher le tutoriel à chaque fois
-            binding.root.postDelayed({
+            // Tutoriel automatique à la première ouverture uniquement
+            if (!tutorialManager.hasSeenTutorial()) {
+                binding.root.postDelayed({
+                    showTutorial(username)
+                    tutorialManager.setTutorialSeen()
+                }, 600)
+            }
+        }
+
+        // Geste secret : appui long pour relancer le tutoriel
+        binding.root.setOnLongClickListener {
+            lifecycleScope.launch {
+                val username = sessionManager.getUsername().first() ?: "guest"
                 showTutorial(username)
-            }, 500)
+            }
+            true
         }
     }
 
@@ -70,7 +82,6 @@ class FragmentAccueil : Fragment() {
                 sessionManager.clearUsername()
                 findNavController().navigate(R.id.action_accueil_to_connexion)
             }
-
         }
 
         binding.btnPrendreVideo.setOnClickListener {
@@ -95,8 +106,8 @@ class FragmentAccueil : Fragment() {
         steps.add(binding.settingsButton to ("Paramètres" to "Accédez aux paramètres de l'application."))
         steps.add(
             binding.authButton to (
-                    (if (username == "guest") "Connexion" else "Déconnexion") to
-                            (if (username == "guest") "Connectez-vous à votre compte ici." else "Déconnectez-vous de l'application.")
+                    if (username == "guest") "Connexion" to "Connectez-vous à votre compte ici."
+                    else "Déconnexion" to "Déconnectez-vous de l'application."
                     )
         )
 
@@ -104,10 +115,7 @@ class FragmentAccueil : Fragment() {
     }
 
     private fun showTutorialSteps(steps: List<Pair<View, Pair<String, String>>>, index: Int) {
-        if (index >= steps.size) {
-            // Ne plus enregistrer comme "vu" pour forcer l'affichage à chaque fois
-            return
-        }
+        if (index >= steps.size) return
 
         val (view, texts) = steps[index]
         MaterialTapTargetPrompt.Builder(requireActivity())

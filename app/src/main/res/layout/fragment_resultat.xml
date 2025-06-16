@@ -76,14 +76,62 @@
             android:elevation="2dp"
             android:importantForAccessibility="yes">
 
-            <TextView android:id="@+id/book_publisher" style="@style/ResultTextView" android:contentDescription="Éditeur" />
-            <TextView android:id="@+id/book_publishedDate" style="@style/ResultTextView" android:contentDescription="Date de publication" />
-            <TextView android:id="@+id/book_pageCount" style="@style/ResultTextView" android:contentDescription="Nombre de pages" />
-            <TextView android:id="@+id/book_categories" style="@style/ResultTextView" android:contentDescription="Catégories" />
-            <TextView android:id="@+id/book_language" style="@style/ResultTextView" android:contentDescription="Langue" />
-            <TextView android:id="@+id/book_isbn13" style="@style/ResultTextView" android:contentDescription="ISBN-13" />
-            <TextView android:id="@+id/book_averageRating" style="@style/ResultTextView" android:contentDescription="Note moyenne" />
-            <TextView android:id="@+id/book_ratingsCount" style="@style/ResultTextView" android:contentDescription="Nombre d'évaluations" />
+            <TextView
+                android:id="@+id/book_publisher"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/ResultTextView"
+                android:contentDescription="Éditeur" />
+
+            <TextView
+                android:id="@+id/book_publishedDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/ResultTextView"
+                android:contentDescription="Date de publication" />
+
+            <TextView
+                android:id="@+id/book_pageCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/ResultTextView"
+                android:contentDescription="Nombre de pages" />
+
+            <TextView
+                android:id="@+id/book_categories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/ResultTextView"
+                android:contentDescription="Catégories" />
+
+            <TextView
+                android:id="@+id/book_language"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/ResultTextView"
+                android:contentDescription="Langue" />
+
+            <TextView
+                android:id="@+id/book_isbn13"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/ResultTextView"
+                android:contentDescription="ISBN-13" />
+
+            <TextView
+                android:id="@+id/book_averageRating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/ResultTextView"
+                android:contentDescription="Note moyenne" />
+
+            <TextView
+                android:id="@+id/book_ratingsCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/ResultTextView"
+                android:contentDescription="Nombre d'évaluations" />
+
         </LinearLayout>
 
         <!-- Boutons -->

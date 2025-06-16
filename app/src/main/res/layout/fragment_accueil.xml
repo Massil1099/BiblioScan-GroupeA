@@ -6,7 +6,7 @@
     android:background="@drawable/background_gradient"
     android:padding="16dp">
 
-    <!-- Toolbar modernisée avec icône paramètres -->
+    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_accueil"
         android:layout_width="match_parent"
@@ -27,7 +27,6 @@
             android:contentDescription="Ouvrir les paramètres"
             android:layout_gravity="end"
             android:padding="8dp"
-            android:focusable="true"
             app:tint="?attr/colorOnPrimary" />
     </androidx.appcompat.widget.Toolbar>
 
@@ -48,11 +47,10 @@
             android:layout_marginBottom="16dp"
             android:text="Historique"
             android:contentDescription="Accéder à l'historique des détections"
-            android:focusable="true"
             app:icon="@drawable/ic_history"
-            app:iconTint="?attr/colorOnPrimary"
             app:iconGravity="textStart"
-            app:iconPadding="12dp" />
+            app:iconPadding="12dp"
+            app:iconTint="@android:color/white" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/favorites_button"
@@ -62,11 +60,10 @@
             android:layout_marginBottom="16dp"
             android:text="Favoris"
             android:contentDescription="Voir les livres ajoutés en favoris"
-            android:focusable="true"
             app:icon="@drawable/ic_favorite"
-            app:iconTint="?attr/colorOnPrimary"
             app:iconGravity="textStart"
-            app:iconPadding="12dp" />
+            app:iconPadding="12dp"
+            app:iconTint="@android:color/white" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/auth_button"
@@ -76,75 +73,34 @@
             android:layout_marginBottom="16dp"
             android:text="Authentification / Déconnexion"
             android:contentDescription="Gérer votre authentification"
-            android:focusable="true"
             app:icon="@drawable/ic_auth"
-            app:iconTint="?attr/colorOnPrimary"
             app:iconGravity="textStart"
-            app:iconPadding="2dp" />
+            app:iconPadding="12dp"
+            app:iconTint="@android:color/white" />
 
-        <!-- Bouton Commençons stylisé comme une CardView -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/camera_button"
+            style="@style/BiblioScan.Button.Filled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
-            app:cardBackgroundColor="@color/teal_700"
-            app:cardUseCompatPadding="true"
-            android:clickable="true"
-            android:focusable="true">
+            android:layout_marginBottom="16dp"
+            android:text="Commençons"
+            android:contentDescription="Lancer la détection de livres"
+            app:icon="@drawable/ic_camera"
+            app:iconGravity="textStart"
+            app:iconPadding="12dp"
+            app:iconTint="@android:color/white" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="16dp">
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/ic_camera"
-                    android:layout_marginEnd="16dp"
-                    app:tint="@android:color/white" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Commençons"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Bouton Prendre une vidéo -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPrendreVideo"
+            style="@style/BiblioScan.Button.Filled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
-            app:cardBackgroundColor="@color/teal_700"
-            app:cardUseCompatPadding="true"
-            android:clickable="true"
-            android:focusable="true">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Prendre une vidéo"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+            android:text="Prendre une vidéo"
+            android:contentDescription="Lancer la détection vidéo"
+            app:icon="@drawable/ic_video"
+            app:iconGravity="textStart"
+            app:iconPadding="12dp"
+            app:iconTint="@android:color/white" />
     </LinearLayout>
 </LinearLayout>
