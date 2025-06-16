@@ -2,7 +2,6 @@ package com.example.biblioscan.imageProcessing
 
 import android.graphics.*
 import androidx.core.graphics.createBitmap
-import kotlin.math.*
 import androidx.core.graphics.get
 import androidx.core.graphics.set
 
@@ -23,7 +22,7 @@ object ImagePreprocessor {
     /**
      * Convertit une image couleur en niveaux de gris en supprimant la saturation.
      */
-    fun toGrayscale(bitmap: Bitmap): Bitmap {
+    private fun toGrayscale(bitmap: Bitmap): Bitmap {
         val grayscale = createBitmap(bitmap.width, bitmap.height)
         val canvas = Canvas(grayscale)
         val paint = Paint()
@@ -43,7 +42,7 @@ object ImagePreprocessor {
      * Améliore le contraste et ajuste la luminosité.
      * Plus le contraste est haut, plus les zones sombres et claires sont accentuées.
      */
-    fun enhanceContrast(bitmap: Bitmap): Bitmap {
+    private fun enhanceContrast(bitmap: Bitmap): Bitmap {
         val contrast = 1.8f    // Facteur de contraste (1.0 = inchangé)
         val brightness = -20f  // Décalage de luminosité (valeurs négatives assombrissent)
 
@@ -71,7 +70,7 @@ object ImagePreprocessor {
      * Applique un filtre de netteté (sharpen) via un noyau de convolution.
      * Renforce les contours pour rendre le texte ou les détails plus lisibles.
      */
-    fun sharpenBitmap(src: Bitmap): Bitmap {
+    private fun sharpenBitmap(src: Bitmap): Bitmap {
         val width = src.width
         val height = src.height
 

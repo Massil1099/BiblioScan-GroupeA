@@ -108,49 +108,70 @@ class FragmentCamera : Fragment() {
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(results: ImageCapture.OutputFileResults) {
                     lifecycleScope.launch {
-                        val bitmap = withContext(Dispatchers.IO) {
-                            BitmapFactory.decodeFile(photoFile.absolutePath)
-                        }
-
-                        // Étape 1 : Prétraitement de l'image (niveau de gris, contraste, netteté)
-                        val preprocessedBitmap = withContext(Dispatchers.Default) {
-                            ImagePreprocessor.preprocess(bitmap)
-                        }
-
-                        // Étape 2 : Détection des livres sur l'image prétraitée
-                        val detector = YoloBookDetector(requireContext())
-                        val detections = detector.detect(preprocessedBitmap)
-
-                        if (detections.isEmpty()) {
-                            Log.d("CameraXApp", "Aucun livre détecté")
-                            return@launch
-                        }
-
-                        // Étape 3 : Extraction du texte via OCR sur les zones détectées
-                        val detectionResults = extractTextFromBoundingBoxes(preprocessedBitmap, detections)
-
-                        // Étape 4 : Dessin des bounding boxes avec les étiquettes OCR
-                        val annotated = drawBoundingBoxes(preprocessedBitmap, detectionResults)
-
-                        // Étape 5 : Sauvegarde de l’image annotée
-                        val processedFile = File(imageDir, "processed_$timeStamp.jpg")
-                        withContext(Dispatchers.IO) {
-                            FileOutputStream(processedFile).use { out ->
-                                annotated.compress(Bitmap.CompressFormat.JPEG, 100, out)
+                        try {
+                            val bitmap = withContext(Dispatchers.IO) {
+                                BitmapFactory.decodeFile(photoFile.absolutePath)
                             }
-                        }
+                            // Étape 1 : Prétraitement de l'image (niveau de gris, contraste, netteté)
+                            val preprocessedBitmap = try {
+                                withContext(Dispatchers.Default) {
+                                    ImagePreprocessor.preprocess(bitmap)
+                                }
+                            } catch (e: Exception) {
+                                Log.e("CameraXApp", "Erreur dans le prétraitement", e)
+                                bitmap
+                            }
+                            // Étape 2 : Détection des livres sur l'image prétraitée
+                            val detector = YoloBookDetector(requireContext())
+                            val detections = try {
+                                detector.detect(preprocessedBitmap)
+                            } catch (e: Exception) {
+                                Log.e("CameraXApp", "Erreur durant la détection YOLO", e)
+                                emptyList()
+                            }
 
-                        // Étape 6 : Navigation avec les résultats OCR + image
-                        val bundle = Bundle().apply {
-                            putString("capturedImagePath", processedFile.absolutePath)
-                            putParcelableArrayList("detectionResults", ArrayList(detectionResults))
-                            putStringArrayList(
-                                "detectedTexts",
-                                ArrayList(detectionResults.map { it.label })
-                            )
-                        }
+                            if (detections.isEmpty()) {
+                                Log.d("CameraXApp", "Aucun livre détecté")
+                                return@launch
+                            }
+                            // Étape 3 : Extraction du texte via OCR sur les zones détectées
+                            val detectionResults = try {
+                                extractTextFromBoundingBoxes(preprocessedBitmap, detections)
+                            } catch (e: Exception) {
+                                Log.e("CameraXApp", "Erreur OCR", e)
+                                emptyList()
+                            }
+                            // Étape 4 : Dessin des bounding boxes avec les étiquettes OCR
+                            val annotated = drawBoundingBoxes(preprocessedBitmap, detectionResults)
+                            // Étape 5 : Sauvegarde de l’image annotée
+                            val processedFile = File(imageDir, "processed_$timeStamp.jpg")
+                            withContext(Dispatchers.IO) {
+                                FileOutputStream(processedFile).use { out ->
+                                    annotated.compress(Bitmap.CompressFormat.JPEG, 100, out)
+                                }
+                            }
+                            // Étape 6 : Navigation avec les résultats OCR + image
+                            val bundle = Bundle().apply {
+                                putString("capturedImagePath", processedFile.absolutePath)
+                                putParcelableArrayList(
+                                    "detectionResults",
+                                    ArrayList(detectionResults)
+                                )
+                                putStringArrayList(
+                                    "detectedTexts",
+                                    ArrayList(detectionResults.map { it.label })
+                                )
+                            }
 
-                        findNavController().navigate(R.id.action_camera_to_liste, bundle)
+                            try {
+                                findNavController().navigate(R.id.action_camera_to_liste, bundle)
+                            } catch (e: Exception) {
+                                Log.e("CameraXApp", "Erreur navigation", e)
+                            }
+
+                        } catch (e: Exception) {
+                            Log.e("CameraXApp", "Erreur globale lors du traitement de l'image", e)
+                        }
                     }
                 }
 
