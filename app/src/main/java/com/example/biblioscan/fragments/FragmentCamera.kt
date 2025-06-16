@@ -16,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.biblioscan.R
 import com.example.biblioscan.databinding.FragmentCameraBinding
 import com.example.biblioscan.imageProcessing.DetectionResult
+import com.example.biblioscan.imageProcessing.ImagePreprocessor
 import com.example.biblioscan.imageProcessing.YoloBookDetector
 import com.example.biblioscan.imageProcessing.extractTextFromBoundingBoxes
 import kotlinx.coroutines.Dispatchers
@@ -111,17 +112,27 @@ class FragmentCamera : Fragment() {
                             BitmapFactory.decodeFile(photoFile.absolutePath)
                         }
 
+                        // Étape 1 : Prétraitement de l'image (niveau de gris, contraste, netteté)
+                        val preprocessedBitmap = withContext(Dispatchers.Default) {
+                            ImagePreprocessor.preprocess(bitmap)
+                        }
+
+                        // Étape 2 : Détection des livres sur l'image prétraitée
                         val detector = YoloBookDetector(requireContext())
-                        val detections = detector.detect(bitmap)
+                        val detections = detector.detect(preprocessedBitmap)
 
                         if (detections.isEmpty()) {
                             Log.d("CameraXApp", "Aucun livre détecté")
                             return@launch
                         }
 
-                        val detectionResults = extractTextFromBoundingBoxes(bitmap, detections)
-                        val annotated = drawBoundingBoxes(bitmap, detectionResults)
+                        // Étape 3 : Extraction du texte via OCR sur les zones détectées
+                        val detectionResults = extractTextFromBoundingBoxes(preprocessedBitmap, detections)
 
+                        // Étape 4 : Dessin des bounding boxes avec les étiquettes OCR
+                        val annotated = drawBoundingBoxes(preprocessedBitmap, detectionResults)
+
+                        // Étape 5 : Sauvegarde de l’image annotée
                         val processedFile = File(imageDir, "processed_$timeStamp.jpg")
                         withContext(Dispatchers.IO) {
                             FileOutputStream(processedFile).use { out ->
@@ -129,6 +140,7 @@ class FragmentCamera : Fragment() {
                             }
                         }
 
+                        // Étape 6 : Navigation avec les résultats OCR + image
                         val bundle = Bundle().apply {
                             putString("capturedImagePath", processedFile.absolutePath)
                             putParcelableArrayList("detectionResults", ArrayList(detectionResults))
